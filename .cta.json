@@ -1,0 +1,28 @@
+{
+  "projectName": "rippy",
+  "mode": "file-router",
+  "typescript": true,
+  "packageManager": "npm",
+  "includeExamples": true,
+  "tailwind": true,
+  "addOnOptions": {
+    "drizzle": {
+      "database": "postgresql"
+    }
+  },
+  "envVarValues": {},
+  "git": true,
+  "routerOnly": false,
+  "version": 1,
+  "framework": "react",
+  "chosenAddOns": [
+    "biome",
+    "sentry",
+    "drizzle",
+    "oRPC",
+    "t3env",
+    "better-auth",
+    "tanstack-query",
+    "events"
+  ]
+}
