@@ -28,6 +28,7 @@
     "@orpc/tanstack-query": "^1.13.6",
     "@orpc/zod": "^1.13.6",
     "@remotion/bundler": "^4.0.448",
+    "@remotion/google-fonts": "^4.0.448",
     "@remotion/media": "^4.0.448",
     "@remotion/player": "^4.0.448",
     "@remotion/renderer": "^4.0.448",

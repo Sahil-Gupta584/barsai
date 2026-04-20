@@ -29,6 +29,8 @@ export const rapGenerate = os
     try {
       lyrics = await lyricsService.generateLyrics(topic)
     } catch (err) {
+      console.log('err',err);
+      
       throw new ORPCError('BAD_REQUEST', {
         message: `Couldn't generate lyrics for that topic — try rephrasing. (${err instanceof Error ? err.message : String(err)})`,
       })
