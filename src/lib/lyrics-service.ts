@@ -5,79 +5,71 @@ import {
   LyricsGenerationError,
   STYLE_PRESETS,
 } from './rap-types'
+import { testingLyrics } from './utils'
 
 // ─── Gemini prompt ────────────────────────────────────────────────────────────
 
 const LYRICS_PROMPT = (topic: string) => `
 Write a roast rap about: "${topic}"
 
-YOU MUST RETURN ONLY THIS EXACT JSON FORMAT - NOTHING ELSE:
+CRITICAL: Output ONLY the markdown below. NO thinking process. NO explanations.
 
-{
-  "hook": [
-    "line 1 text here",
-    "line 2 text here", 
-    "line 3 text here",
-    "line 4 text here"
-  ],
-  "verse": [
-    "line 1 text here",
-    "line 2 text here",
-    "line 3 text here",
-    "line 4 text here",
-    "line 5 text here",
-    "line 6 text here",
-    "line 7 text here",
-    "line 8 text here"
-  ]
-}
+## Hook
+Line 1 text here
+Line 2 text here
+Line 3 text here
+Line 4 text here
 
-STYLE: Roasting/diss track - clever insults, wordplay, funny, call out flaws and stereotypes.
+## Verse
+Line 1 text here
+Line 2 text here
+Line 3 text here
+Line 4 text here
+Line 5 text here
+Line 6 text here
+Line 7 text here
+Line 8 text here
 
-EXAMPLE FOR "nerd programmer":
-{
-  "hook": [
-    "Architect of worlds, I'm the king of the code,",
-    "Building the future in an incognito mode.",
-    "High-level thinker with a six-figure pay,",
-    "Until the compiler gets in my way."
-  ],
-  "verse": [
-    "You call yourself a genius, a silicon god,",
-    "But your GitHub activity is looking quite odd.",
-    "You brag about Python and your AI stack,",
-    "But you can't exit Vim and your posture is slack.",
-    "Your LinkedIn says Visionary, Leader, and Pro,",
-    "But your logic is spaghetti and your queries are slow.",
-    "You bought a mechanical keyboard that clicks like a train,",
-    "To hide the fact you've got nothing but bugs in your brain."
-  ]
-}
+STYLE: Roasting/diss track - clever insults, wordplay, funny.
 
-NOW WRITE THE JSON FOR "${topic}" - ONLY JSON, NO EXPLANATIONS:
+EXAMPLE OUTPUT:
+## Hook
+Architect of worlds, I'm the king of the code,
+Building the future in an incognito mode.
+High-level thinker with a six-figure pay,
+Until the compiler gets in my way.
+
+## Verse
+You call yourself a genius, a silicon god,
+But your GitHub activity is looking quite odd.
+You brag about Python and your AI stack,
+But you can't exit Vim and your posture is slack.
+Your LinkedIn says Visionary, Leader, and Pro,
+But your logic is spaghetti and your queries are slow.
+You bought a mechanical keyboard that clicks like a train,
+To hide the fact you've got nothing but bugs in your brain.
 `.trim()
 
-const EMOTION_TAGS_PROMPT = (lyricsJson: string) => `
-Add emotion tags to this rap. Return ONLY JSON - NO EXPLANATIONS.
+const EMOTION_TAGS_PROMPT = (lyrics: string) => `
+Add emotion tags to this rap. Return in the SAME markdown format.
 
 SUPPORTED TAGS: [sad], [angry], [happily], [excited], [calm], [serious], [whispers], [shouts], [slow], [fast], [laughs], [sighs], [gasp], [emphasis], [dramatic]
 
-INPUT JSON:
-${lyricsJson}
+Add 2-4 tags INLINE in the text.
 
-Add 2-4 tags INLINE in the text. Example:
-{
-  "hook": [
-    "[excited] First line here",
-    "Second line [shouts] with tag"
-  ],
-  "verse": [
-    "[fast] Line one",
-    "Line two [emphasis] here"
-  ]
-}
+EXAMPLE:
+## Hook
+[excited] First line here
+Second line [shouts] with tag
 
-RETURN ONLY THE JSON WITH TAGS ADDED:
+## Verse
+[fast] Line one
+Line two [emphasis] here
+
+INPUT:
+${lyrics}
+
+OUTPUT (with tags added):
 `.trim()
 
 // ─── Parser ───────────────────────────────────────────────────────────────────
@@ -87,44 +79,29 @@ function tokenize(line: string): string[] {
     .trim()
     .split(/\s+/)
     .filter((w) => w.length > 0)
+    // Filter out emotion tags from the words array
+    .filter((w) => !/^\[(sad|angry|happily|excited|calm|serious|whispers|shouts|slow|fast|laughs|sighs|gasp|emphasis|dramatic|sorrowful|clears throat|silence|long_pause|break)\]$/i.test(w))
 }
 
 export function parseLyricsFromGemini(
   rawText: string,
   topic: string,
 ): LyricsDocument {
-  // Extract JSON from response (handle markdown code blocks)
-  let jsonText = rawText.trim()
-  
-  // Remove markdown code blocks if present
-  jsonText = jsonText.replace(/```json\s*/gi, '').replace(/```\s*/g, '')
-  
-  // Find JSON object
-  const jsonMatch = jsonText.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) {
-    throw new LyricsGenerationError(
-      `Could not find JSON in Gemini response for topic: "${topic}"`,
-    )
-  }
-
-  let parsed: { hook?: string[]; verse?: string[] }
-  try {
-    parsed = JSON.parse(jsonMatch[0])
-  } catch (err) {
-    throw new LyricsGenerationError(
-      `Invalid JSON in Gemini response for topic: "${topic}"`,
-    )
-  }
+  console.log('Parsing raw text:', rawText.substring(0, 200))
 
   const sections: LyricsSection[] = []
 
-  // Parse hook
-  if (parsed.hook && Array.isArray(parsed.hook)) {
-    const hookLines = parsed.hook
-      .filter((line) => line.trim())
+  // Extract Hook section (## Hook or ## hook)
+  const hookMatch = rawText.match(/##\s*Hook\s*\n([\s\S]*?)(?=##|$)/i)
+  if (hookMatch) {
+    const hookText = hookMatch[1].trim()
+    const hookLines = hookText
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line && !line.startsWith('#') && !line.startsWith('*'))
       .map((line) => ({
-        text: line.trim(),
-        words: tokenize(line.trim()),
+        text: line,
+        words: tokenize(line),
       }))
 
     if (hookLines.length > 0) {
@@ -133,16 +110,21 @@ export function parseLyricsFromGemini(
         lines: hookLines,
         stylePreset: STYLE_PRESETS.hook,
       })
+      console.log('Parsed hook:', hookLines.length, 'lines')
     }
   }
 
-  // Parse verse
-  if (parsed.verse && Array.isArray(parsed.verse)) {
-    const verseLines = parsed.verse
-      .filter((line) => line.trim())
+  // Extract Verse section (## Verse or ## verse)
+  const verseMatch = rawText.match(/##\s*Verse\s*\n([\s\S]*?)(?=##|$)/i)
+  if (verseMatch) {
+    const verseText = verseMatch[1].trim()
+    const verseLines = verseText
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line && !line.startsWith('#') && !line.startsWith('*'))
       .map((line) => ({
-        text: line.trim(),
-        words: tokenize(line.trim()),
+        text: line,
+        words: tokenize(line),
       }))
 
     if (verseLines.length > 0) {
@@ -151,12 +133,13 @@ export function parseLyricsFromGemini(
         lines: verseLines,
         stylePreset: STYLE_PRESETS.verse,
       })
+      console.log('Parsed verse:', verseLines.length, 'lines')
     }
   }
 
   if (sections.length === 0) {
     throw new LyricsGenerationError(
-      `Could not parse any sections from Gemini response for topic: "${topic}". Expected JSON with "hook" and "verse" arrays.`,
+      `Could not parse any sections from Gemini response for topic: "${topic}". Expected markdown with ## Hook and ## Verse headers.`,
     )
   }
 
@@ -168,6 +151,8 @@ export function parseLyricsFromGemini(
   if (!fullText.trim()) {
     throw new LyricsGenerationError('Generated lyrics are empty')
   }
+
+  console.log('Successfully parsed:', { sections: sections.length, hookLines: sections[0]?.lines.length, verseLines: sections[1]?.lines.length })
 
   return { topic, sections, fullText }
 }
@@ -182,7 +167,7 @@ class LyricsService {
   }
 
   private async callGemini(prompt: string, retries = 3): Promise<string> {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:generateContent`
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent`
 
     const body = {
       contents: [
@@ -246,6 +231,7 @@ class LyricsService {
   }
 
   async generateLyrics(topic: string): Promise<LyricsDocument> {
+    return testingLyrics
     const sanitizedTopic = topic.trim().slice(0, 200)
 
     // Step 1: Generate base lyrics as JSON
@@ -259,7 +245,7 @@ class LyricsService {
     // Parse the JSON response
     const lyrics = parseLyricsFromGemini(lyricsWithTags, sanitizedTopic)
     console.log('Parsed sections:', lyrics.sections.length)
-console.log('lyrics',lyrics);
+    console.log('lyrics', JSON.stringify(lyrics));
 
     return lyrics
   }

@@ -94,6 +94,7 @@ export interface RenderInput {
   lyrics: LyricsDocument
   wordTimestamps: WordTimestamp[]
   audioBuffer: Buffer
+  beatBuffer?: Buffer | null  // Optional background beat
   outputPath: string
 }
 

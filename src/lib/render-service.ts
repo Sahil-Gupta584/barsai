@@ -19,7 +19,7 @@ export function computeDurationInFrames(
 
 class RenderService {
   async renderVideo(input: RenderInput): Promise<Buffer> {
-    const { lyrics, wordTimestamps, audioBuffer, outputPath } = input
+    const { lyrics, wordTimestamps, audioBuffer, beatBuffer, outputPath } = input
 
     // Audio must be served via http — write to public/ so Vite serves it
     const jobId = path.basename(outputPath, '.mp4')
@@ -37,6 +37,19 @@ class RenderService {
 
     fs.writeFileSync(publicAudioPath, audioBuffer)
 
+    // Write beat buffer if provided
+    let beatSrc: string | undefined
+    if (beatBuffer) {
+      const publicBeatPath = path.resolve(
+        process.cwd(),
+        'public/videos',
+        `${jobId}-beat.mp3`,
+      )
+      fs.writeFileSync(publicBeatPath, beatBuffer)
+      beatSrc = `${process.env.BETTER_AUTH_URL ?? 'http://localhost:3000'}/videos/${jobId}-beat.mp3`
+      console.log('Beat written to:', publicBeatPath)
+    }
+
     // Remotion needs an http URL for audio — use the Vite dev server
     const serverUrl = process.env.BETTER_AUTH_URL ?? 'http://localhost:3000'
     const audioSrc = `${serverUrl}/videos/${jobId}-audio.mp3`
@@ -50,6 +63,7 @@ class RenderService {
       durationInFrames,
       fps,
       audioSrc,
+      beatSrc,
     }
 
     try {
@@ -101,14 +115,21 @@ class RenderService {
         `Remotion render failed: ${err instanceof Error ? err.message : String(err)}`,
       )
     } finally {
-      // Clean up temp audio file after render
-      try {
-        if (fs.existsSync(publicAudioPath)) {
-          fs.unlinkSync(publicAudioPath)
-        }
-      } catch {
-        // ignore
-      }
+      // Keep audio and beat files for debugging - don't delete them
+      // Audio file: publicAudioPath
+      // Beat file: publicBeatPath (if beatBuffer was provided)
+      
+      // Clean up temp files after render - COMMENTED OUT TO PRESERVE FILES
+      // try {
+      //   if (fs.existsSync(publicAudioPath)) {
+      //     fs.unlinkSync(publicAudioPath)
+      //   }
+      //   if (beatBuffer && publicBeatPath) {
+      //     fs.unlinkSync(publicBeatPath)
+      //   }
+      // } catch {
+      //   // ignore
+      // }
     }
   }
 }
