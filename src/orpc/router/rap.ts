@@ -1,4 +1,3 @@
-import fs from 'node:fs'
 import path from 'node:path'
 import { ORPCError, os } from '@orpc/server'
 import { eq } from 'drizzle-orm'
@@ -70,6 +69,8 @@ export const rapGenerate = os
         outputPath,
       })
     } catch (err) {
+      console.log(err);
+      
       // Mark job as failed
       await db
         .update(rapJobs)

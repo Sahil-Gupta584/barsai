@@ -1,5 +1,4 @@
 import fs from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
 import { bundle } from '@remotion/bundler'
 import { renderMedia, selectComposition } from '@remotion/renderer'
@@ -11,7 +10,7 @@ export function computeDurationInFrames(
   wordTimestamps: { endTime: number }[],
   fps = 30,
 ): number {
-  if (wordTimestamps.length === 0) return fps * 5 // 5s default
+  if (wordTimestamps.length === 0) return fps * 5
   const lastEndTime = wordTimestamps[wordTimestamps.length - 1].endTime
   return Math.ceil((lastEndTime + 0.5) * fps)
 }
@@ -22,27 +21,41 @@ class RenderService {
   async renderVideo(input: RenderInput): Promise<Buffer> {
     const { lyrics, wordTimestamps, audioBuffer, outputPath } = input
 
-    const tmpDir = os.tmpdir()
-    const audioTmpPath = path.join(tmpDir, `rippy-audio-${Date.now()}.mp3`)
+    // Audio must be served via http — write to public/ so Vite serves it
+    const jobId = path.basename(outputPath, '.mp4')
+    const publicAudioPath = path.resolve(
+      process.cwd(),
+      'public/videos',
+      `${jobId}-audio.mp3`,
+    )
+
+    // Ensure public/videos exists
+    const outputDir = path.dirname(outputPath)
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true })
+    }
+
+    fs.writeFileSync(publicAudioPath, audioBuffer)
+
+    // Remotion needs an http URL for audio — use the Vite dev server
+    const serverUrl = process.env.BETTER_AUTH_URL ?? 'http://localhost:3000'
+    const audioSrc = `${serverUrl}/videos/${jobId}-audio.mp3`
+
+    const durationInFrames = computeDurationInFrames(wordTimestamps)
+    const fps = 30
+
+    const props = {
+      lyrics,
+      wordTimestamps,
+      durationInFrames,
+      fps,
+      audioSrc,
+    }
 
     try {
-      // Write audio to temp file so Remotion can reference it
-      fs.writeFileSync(audioTmpPath, audioBuffer)
-
-      const durationInFrames = computeDurationInFrames(wordTimestamps)
-      const fps = 30
-
-      const props = {
-        lyrics,
-        wordTimestamps,
-        durationInFrames,
-        fps,
-        audioSrc: audioTmpPath,
-      }
-
       // Bundle the Remotion composition
       const bundleLocation = await bundle({
-        entryPoint: path.resolve(process.cwd(), 'src/remotion/index.ts'),
+        entryPoint: path.resolve(process.cwd(), 'src/remotion/index.tsx'),
         webpackOverride: (config) => config,
       })
 
@@ -53,19 +66,12 @@ class RenderService {
         inputProps: props,
       })
 
-      // Override duration with computed value
       const finalComposition = {
         ...composition,
         durationInFrames,
         fps,
         width: 1080,
         height: 1080,
-      }
-
-      // Ensure output directory exists
-      const outputDir = path.dirname(outputPath)
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true })
       }
 
       // Render to file
@@ -77,16 +83,13 @@ class RenderService {
         inputProps: props,
         concurrency: 2,
         onProgress: ({ progress }) => {
-          // progress is 0–1
           process.stdout.write(`\rRendering: ${Math.round(progress * 100)}%`)
         },
       })
 
       process.stdout.write('\n')
 
-      // Read back as buffer
       const mp4Buffer = fs.readFileSync(outputPath)
-
       if (mp4Buffer.length === 0) {
         throw new RenderError('Rendered MP4 is empty')
       }
@@ -98,13 +101,13 @@ class RenderService {
         `Remotion render failed: ${err instanceof Error ? err.message : String(err)}`,
       )
     } finally {
-      // Clean up temp audio file
+      // Clean up temp audio file after render
       try {
-        if (fs.existsSync(audioTmpPath)) {
-          fs.unlinkSync(audioTmpPath)
+        if (fs.existsSync(publicAudioPath)) {
+          fs.unlinkSync(publicAudioPath)
         }
       } catch {
-        // ignore cleanup errors
+        // ignore
       }
     }
   }

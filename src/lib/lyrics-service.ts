@@ -143,6 +143,8 @@ class LyricsService {
       },
       body: JSON.stringify(body),
     })
+    console.log('res',JSON.stringify(res));
+    
 
     if (!res.ok) {
       throw new LyricsGenerationError(
@@ -162,7 +164,8 @@ class LyricsService {
       throw new LyricsGenerationError('Gemini returned empty response')
     }
 
-    return parseLyricsFromGemini(rawText, sanitizedTopic)
+    const lyrics = parseLyricsFromGemini(rawText, sanitizedTopic)
+    return lyrics
   }
 }
 

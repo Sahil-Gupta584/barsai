@@ -1,23 +1,18 @@
-import { AbsoluteFill, Audio, Sequence, useCurrentFrame, useVideoConfig } from 'remotion'
+import { AbsoluteFill, useCurrentFrame, useVideoConfig } from 'remotion'
+import { Audio } from '@remotion/media'
 import type { LyricsDocument, StylePreset, WordTimestamp } from '#/lib/rap-types'
 import { getWordAnimationStyle } from './animations'
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface RapVideoProps {
   lyrics: LyricsDocument
   wordTimestamps: WordTimestamp[]
   durationInFrames: number
   fps: number
-  audioSrc?: string // path to audio file for Remotion Audio component
+  audioSrc?: string
 }
 
 // ─── Pure helpers ─────────────────────────────────────────────────────────────
 
-/**
- * Returns words that should be visible at the given frame.
- * Pure function — same inputs always produce same output.
- */
 export function getVisibleWords(
   wordTimestamps: WordTimestamp[],
   currentFrame: number,
@@ -29,9 +24,6 @@ export function getVisibleWords(
   )
 }
 
-/**
- * Compute animation progress (0–1) for a word at the current frame.
- */
 function getWordProgress(wt: WordTimestamp, currentFrame: number, fps: number): number {
   const currentTime = currentFrame / fps
   const duration = wt.endTime - wt.startTime
@@ -39,16 +31,14 @@ function getWordProgress(wt: WordTimestamp, currentFrame: number, fps: number): 
   return Math.max(0, Math.min(1, (currentTime - wt.startTime) / duration))
 }
 
-// ─── Word component ───────────────────────────────────────────────────────────
+// ─── Styled word ──────────────────────────────────────────────────────────────
 
-interface WordProps {
+function AnimatedWord({ wt, preset, frame, fps }: {
   wt: WordTimestamp
   preset: StylePreset
   frame: number
   fps: number
-}
-
-function AnimatedWord({ wt, preset, frame, fps }: WordProps) {
+}) {
   const progress = getWordProgress(wt, frame, fps)
   const animStyle = getWordAnimationStyle(preset.animation, progress)
 
@@ -56,12 +46,13 @@ function AnimatedWord({ wt, preset, frame, fps }: WordProps) {
     <span
       style={{
         display: 'inline-block',
-        fontFamily: preset.fontFamily,
+        fontFamily: "'Bebas Neue', Impact, sans-serif",
         fontSize: preset.fontSize,
         color: preset.color,
-        textTransform: preset.textTransform,
-        margin: '0 8px',
-        lineHeight: 1.1,
+        textTransform: 'uppercase',
+        margin: '0 6px',
+        lineHeight: 1,
+        letterSpacing: '0.05em',
         ...animStyle,
       }}
     >
@@ -70,22 +61,41 @@ function AnimatedWord({ wt, preset, frame, fps }: WordProps) {
   )
 }
 
-// ─── Section label ────────────────────────────────────────────────────────────
+// ─── Grid overlay (matches landing page aesthetic) ────────────────────────────
 
-function SectionLabel({ type }: { type: string }) {
+function GridOverlay() {
   return (
     <div
       style={{
         position: 'absolute',
-        top: 40,
+        inset: 0,
+        backgroundImage: `
+          linear-gradient(rgba(250,204,21,0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(250,204,21,0.04) 1px, transparent 1px)
+        `,
+        backgroundSize: '60px 60px',
+        pointerEvents: 'none',
+      }}
+    />
+  )
+}
+
+// ─── Section badge ────────────────────────────────────────────────────────────
+
+function SectionBadge({ type }: { type: string }) {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: 48,
         left: 0,
         right: 0,
         textAlign: 'center',
-        fontFamily: 'Impact, sans-serif',
-        fontSize: 24,
-        color: 'rgba(255,255,255,0.3)',
+        fontFamily: "'Space Mono', monospace",
+        fontSize: 16,
+        color: 'rgba(250,204,21,0.4)',
         textTransform: 'uppercase',
-        letterSpacing: 6,
+        letterSpacing: 8,
       }}
     >
       {type}
@@ -104,11 +114,10 @@ export function RapVideoComposition({
   const { fps } = useVideoConfig()
 
   const visibleWords = getVisibleWords(wordTimestamps, frame, fps)
-
-  // Determine which section we're in based on current time
   const currentTime = frame / fps
+
+  // Find current section
   const currentSection = (() => {
-    // Build a map of word → section
     for (const section of lyrics.sections) {
       const sectionWords = section.lines.flatMap((l) => l.words)
       for (const wt of wordTimestamps) {
@@ -127,40 +136,35 @@ export function RapVideoComposition({
   const preset = currentSection?.stylePreset ?? lyrics.sections[0]?.stylePreset
 
   return (
-    <AbsoluteFill
-      style={{
-        backgroundColor: '#0a0a0a',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Subtle background gradient that pulses */}
+    <AbsoluteFill style={{ backgroundColor: '#000000' }}>
+
+      {/* Grid */}
+      <GridOverlay />
+
+      {/* Radial glow — color shifts per section */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: `radial-gradient(ellipse at center, ${preset?.accentColor ?? '#111'}22 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse 70% 50% at 50% 50%, ${preset?.accentColor ?? '#facc15'}18 0%, transparent 70%)`,
           pointerEvents: 'none',
         }}
       />
 
-      {/* Section label */}
-      {currentSection && <SectionLabel type={currentSection.type} />}
+      {/* Section badge */}
+      {currentSection && <SectionBadge type={currentSection.type} />}
 
       {/* Audio */}
       {audioSrc && <Audio src={audioSrc} />}
 
-      {/* Lyrics display area */}
+      {/* Lyrics */}
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
           justifyContent: 'center',
           alignItems: 'center',
-          padding: '0 60px',
+          padding: '0 80px',
           maxWidth: '100%',
           textAlign: 'center',
           minHeight: 200,
@@ -178,20 +182,19 @@ export function RapVideoComposition({
             />
           ))
         ) : (
-          // Show a subtle beat indicator when no words are visible
           <div
             style={{
-              width: 8,
-              height: 8,
+              width: 6,
+              height: 6,
               borderRadius: '50%',
-              backgroundColor: preset?.accentColor ?? '#333',
-              opacity: 0.4,
+              backgroundColor: '#facc15',
+              opacity: 0.3,
             }}
           />
         )}
       </div>
 
-      {/* Bottom topic watermark */}
+      {/* Watermark */}
       <div
         style={{
           position: 'absolute',
@@ -199,13 +202,14 @@ export function RapVideoComposition({
           left: 0,
           right: 0,
           textAlign: 'center',
-          fontFamily: 'monospace',
-          fontSize: 18,
-          color: 'rgba(255,255,255,0.2)',
-          letterSpacing: 2,
+          fontFamily: "'Space Mono', monospace",
+          fontSize: 14,
+          color: 'rgba(250,204,21,0.2)',
+          letterSpacing: 6,
+          textTransform: 'uppercase',
         }}
       >
-        rippy.app
+        BARS.AI
       </div>
     </AbsoluteFill>
   )
