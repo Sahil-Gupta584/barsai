@@ -42,6 +42,7 @@
     "@tanstack/ai-ollama": "latest",
     "@tanstack/ai-openai": "latest",
     "@tanstack/ai-react": "latest",
+    "@tanstack/nitro-v2-vite-plugin": "^1.154.9",
     "@tanstack/react-devtools": "latest",
     "@tanstack/react-query": "latest",
     "@tanstack/react-query-devtools": "latest",
