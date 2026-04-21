@@ -4,6 +4,22 @@ import { bundle } from '@remotion/bundler'
 import { renderMedia, selectComposition } from '@remotion/renderer'
 import { RenderError, type RenderInput } from './rap-types'
 
+// ─── Serverless detection ─────────────────────────────────────────────────────
+
+function isServerless(): boolean {
+  return process.env.VERCEL === '1' || !fs.existsSync(path.join(process.cwd(), 'public'))
+}
+
+function getTempDir(): string {
+  // Use /tmp on serverless, otherwise use public/videos
+  if (isServerless()) return '/tmp'
+  const videosDir = path.join(process.cwd(), 'public/videos')
+  if (!fs.existsSync(videosDir)) {
+    fs.mkdirSync(videosDir, { recursive: true })
+  }
+  return videosDir
+}
+
 // ─── Duration helper ──────────────────────────────────────────────────────────
 
 export function computeDurationInFrames(
@@ -21,39 +37,40 @@ class RenderService {
   async renderVideo(input: RenderInput): Promise<Buffer> {
     const { lyrics, wordTimestamps, audioBuffer, beatBuffer, outputPath } = input
 
-    // Audio must be served via http — write to public/ so Vite serves it
+    const tempDir = getTempDir()
     const jobId = path.basename(outputPath, '.mp4')
-    const publicAudioPath = path.resolve(
-      process.cwd(),
-      'public/videos',
-      `${jobId}-audio.mp3`,
-    )
 
-    // Ensure public/videos exists
-    const outputDir = path.dirname(outputPath)
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true })
-    }
-
-    fs.writeFileSync(publicAudioPath, audioBuffer)
+    // Write audio files to temp dir (writable on serverless)
+    const audioPath = path.join(tempDir, `${jobId}-audio.mp3`)
+    fs.writeFileSync(audioPath, audioBuffer)
 
     // Write beat buffer if provided
-    let beatSrc: string | undefined
+    let beatPath: string | undefined
     if (beatBuffer) {
-      const publicBeatPath = path.resolve(
-        process.cwd(),
-        'public/videos',
-        `${jobId}-beat.mp3`,
-      )
-      fs.writeFileSync(publicBeatPath, beatBuffer)
-      beatSrc = `${process.env.BETTER_AUTH_URL ?? 'http://localhost:3000'}/videos/${jobId}-beat.mp3`
-      console.log('Beat written to:', publicBeatPath)
+      beatPath = path.join(tempDir, `${jobId}-beat.mp3`)
+      fs.writeFileSync(beatPath, beatBuffer)
     }
 
-    // Remotion needs an http URL for audio — use the Vite dev server
-    const serverUrl = process.env.BETTER_AUTH_URL ?? 'http://localhost:3000'
-    const audioSrc = `${serverUrl}/videos/${jobId}-audio.mp3`
-    const punchSrc = `${serverUrl}/beats/punch.mp3`
+    // On serverless, use file:// URLs for local audio files
+    // On local dev, use http://localhost:... for Vite to serve
+    const isLocal = !isServerless()
+    const serverUrl = isLocal
+      ? (process.env.BETTER_AUTH_URL ?? 'http://localhost:3000')
+      : null
+
+    const audioSrc = isLocal
+      ? `${serverUrl}/videos/${jobId}-audio.mp3`
+      : `file://${audioPath}`
+
+    const beatSrc = beatPath && isLocal
+      ? `${serverUrl}/videos/${jobId}-beat.mp3`
+      : beatPath ? `file://${beatPath}` : undefined
+
+    // Punch sound - only include if file exists (optional enhancement)
+    const punchSoundPath = path.join(process.cwd(), 'public/beats/punch.mp3')
+    const punchSrc = isLocal
+      ? `${serverUrl}/beats/punch.mp3`
+      : (fs.existsSync(punchSoundPath) ? `file://${punchSoundPath}` : undefined)
 
     const durationInFrames = computeDurationInFrames(wordTimestamps)
     const fps = 30
@@ -90,12 +107,14 @@ class RenderService {
         height: 1080,
       }
 
-      // Render to file
+      // Render to temp location
+      const renderOutputPath = path.join(tempDir, `${jobId}.mp4`)
+
       await renderMedia({
         composition: finalComposition,
         serveUrl: bundleLocation,
         codec: 'h264',
-        outputLocation: outputPath,
+        outputLocation: renderOutputPath,
         inputProps: props,
         concurrency: 2,
         onProgress: ({ progress }) => {
@@ -105,7 +124,7 @@ class RenderService {
 
       process.stdout.write('\n')
 
-      const mp4Buffer = fs.readFileSync(outputPath)
+      const mp4Buffer = fs.readFileSync(renderOutputPath)
       if (mp4Buffer.length === 0) {
         throw new RenderError('Rendered MP4 is empty')
       }
@@ -117,21 +136,14 @@ class RenderService {
         `Remotion render failed: ${err instanceof Error ? err.message : String(err)}`,
       )
     } finally {
-      // Keep audio and beat files for debugging - don't delete them
-      // Audio file: publicAudioPath
-      // Beat file: publicBeatPath (if beatBuffer was provided)
-      
-      // Clean up temp files after render - COMMENTED OUT TO PRESERVE FILES
-      // try {
-      //   if (fs.existsSync(publicAudioPath)) {
-      //     fs.unlinkSync(publicAudioPath)
-      //   }
-      //   if (beatBuffer && publicBeatPath) {
-      //     fs.unlinkSync(publicBeatPath)
-      //   }
-      // } catch {
-      //   // ignore
-      // }
+      // Clean up temp audio/beat files
+      try {
+        if (fs.existsSync(audioPath)) fs.unlinkSync(audioPath)
+        if (beatPath && fs.existsSync(beatPath)) fs.unlinkSync(beatPath)
+        // We no longer delete the final .mp4 here because the user wants to keep it in public/videos
+      } catch {
+        // ignore cleanup errors
+      }
     }
   }
 }
