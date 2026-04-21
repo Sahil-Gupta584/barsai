@@ -1,4 +1,4 @@
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, Audio, spring } from 'remotion'
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, Audio, spring, Sequence } from 'remotion'
 import { loadFont as loadRobotoMono } from '@remotion/google-fonts/RobotoMono'
 import { loadFont as loadOswald } from '@remotion/google-fonts/Oswald'
 import { loadFont as loadBebasNeue } from '@remotion/google-fonts/BebasNeue'
@@ -15,6 +15,9 @@ const { fontFamily: rubikMonoOne } = loadRubikMonoOne()
 // Array of fonts to cycle through for variety
 const fonts = [oswald, bebasNeue, anton, rubikMonoOne]
 
+// SYNC TUNING: increase if captions lag behind audio, decrease if ahead
+const AUDIO_OFFSET = 0.5
+
 export interface RapVideoProps {
   lyrics: LyricsDocument
   wordTimestamps: WordTimestamp[]
@@ -22,6 +25,7 @@ export interface RapVideoProps {
   fps: number
   audioSrc?: string
   beatSrc?: string
+  punchSrc?: string
 }
 
 // ─── Pure helpers ─────────────────────────────────────────────────────────────
@@ -65,9 +69,11 @@ function getCurrentLine(
   currentTime: number,
   allWords: Array<{ word: string; timestamp: WordTimestamp; lineIndex: number }>,
 ): { text: string; words: Array<{ word: string; timestamp: WordTimestamp }> } | null {
-  // Add small offset to account for audio processing delay (adjust if needed)
-  const adjustedTime = currentTime - 0.05 // 50ms offset
-  
+  // SYNC TUNING: if captions lag behind audio, increase this value.
+  // If captions are ahead of audio, decrease it.
+  // Current observed drift: audio leads captions by ~0.5s
+  const adjustedTime = currentTime - AUDIO_OFFSET
+
   // Find which word is currently active
   const activeWord = allWords.find(
     w => w.timestamp.startTime <= adjustedTime && adjustedTime < w.timestamp.endTime
@@ -146,7 +152,7 @@ function KaraokeWord({
   wordIndex: number
 }) {
   const currentTime = frame / fps
-  const adjustedTime = currentTime - 0.05 // Same offset as getCurrentLine
+  const adjustedTime = currentTime - AUDIO_OFFSET // Same offset as getCurrentLine
   const isPast = adjustedTime >= timestamp.endTime
 
   // Use different font for each word for variety
@@ -261,6 +267,7 @@ export function RapVideoComposition({
   wordTimestamps,
   audioSrc,
   beatSrc,
+  punchSrc,
 }: RapVideoProps) {
   const frame = useCurrentFrame()
   const { fps } = useVideoConfig()
@@ -269,20 +276,23 @@ export function RapVideoComposition({
   const allWords = getAllWords(lyrics, wordTimestamps)
   const currentLine = getCurrentLine(currentTime, allWords)
 
-  // Determine current section type for dynamic beat volume
-  const currentSection = lyrics.sections.find(section => {
-    const sectionWords = section.lines.flatMap(line => line.words)
-    const sectionStart = allWords.find(w => sectionWords.includes(w.word))
-    const sectionEnd = allWords.filter(w => sectionWords.includes(w.word)).pop()
-    
-    if (!sectionStart || !sectionEnd) return false
-    
-    return currentTime >= sectionStart.timestamp.startTime && 
-           currentTime <= sectionEnd.timestamp.endTime
-  })
-
-  // Dynamic beat volume: louder on hooks, quieter on verses
-  const beatVolume = currentSection?.type === 'hook' ? 0.6 : 0.3
+  // Punchline = last line of each section
+  // Fire punch.mp3 0.1s BEFORE the line starts (anticipation hit)
+  const punchlineTimes = lyrics.sections.map(section => {
+    const lastLine = section.lines[section.lines.length - 1]
+    if (!lastLine) return null
+    // Count words before this line to find its index in allWords
+    const wordsBeforeLastLine = section.lines
+      .slice(0, section.lines.length - 1)
+      .reduce((acc, l) => acc + l.words.length, 0)
+    const sectionStartIndex = allWords.findIndex(w =>
+      section.lines[0]?.words[0] === w.word
+    )
+    if (sectionStartIndex === -1) return null
+    const firstWordOfLastLine = allWords[sectionStartIndex + wordsBeforeLastLine]
+    if (!firstWordOfLastLine) return null
+    return Math.max(0, firstWordOfLastLine.timestamp.startTime - 0.1)
+  }).filter((t): t is number => t !== null)
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#0a0a0a' }}>
@@ -306,8 +316,36 @@ export function RapVideoComposition({
       {/* Audio - vocals */}
       {audioSrc && <Audio src={audioSrc} />}
       
-      {/* Audio - background beat */}
-      {beatSrc && <Audio src={beatSrc} volume={beatVolume} />}
+      {/* Audio - background beat (looped at low volume so vocals stay clear) */}
+      {beatSrc && <Audio src={beatSrc} volume={0.25} loop />}
+
+      {/* Punchline flash effect — white flash + scale on punchline hits */}
+      {punchlineTimes.map((t, i) => {
+        const punchFrame = Math.round(t * fps)
+        const elapsed = frame - punchFrame
+        if (elapsed < 0 || elapsed > fps * 0.4) return null
+        const flashOpacity = Math.max(0, 0.5 - elapsed / (fps * 0.4))
+        const scaleVal = 1 + Math.max(0, 0.04 - (elapsed / (fps * 0.4)) * 0.04)
+        return (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundColor: `rgba(250,204,21,${flashOpacity})`,
+              pointerEvents: 'none',
+              transform: `scale(${scaleVal})`,
+            }}
+          />
+        )
+      })}
+
+      {/* Audio - punchline boom: fires at the start of each section's last line */}
+      {punchSrc && punchlineTimes.map((t, i) => (
+        <Sequence key={i} from={Math.round(t * fps)} durationInFrames={Math.round(fps * 1.5)}>
+          <Audio src={punchSrc} volume={0.7} />
+        </Sequence>
+      ))}
 
       {/* Lyrics - Keep full sentence together, highlight words as they're spoken */}
       <AbsoluteFill
@@ -332,7 +370,7 @@ export function RapVideoComposition({
             }}
           >
             {currentLine.words.map((w, i) => {
-              const adjustedTime = currentTime - 0.05 // Same offset
+              const adjustedTime = currentTime - AUDIO_OFFSET // Same offset
               const isActive = w.timestamp.startTime <= adjustedTime && adjustedTime < w.timestamp.endTime
               return (
                 <KaraokeWord
@@ -373,7 +411,6 @@ export function RapVideoComposition({
       </div>
 
       {/* Debug overlay - shows timing info */}
-      {process.env.NODE_ENV === 'development' && (
         <div
           style={{
             position: 'absolute',
@@ -387,21 +424,33 @@ export function RapVideoComposition({
             borderRadius: 5,
           }}
         >
-          <div>Frame: {frame}</div>
-          <div>Time: {currentTime.toFixed(2)}s</div>
-          <div>Adjusted: {(currentTime - 0.05).toFixed(2)}s</div>
-          <div>Words: {allWords.length}</div>
+          <div>Frame: {frame} | Time: {currentTime.toFixed(3)}s | Offset: {AUDIO_OFFSET}s</div>
+          {(() => {
+            const activeWord = allWords.find(w =>
+              w.timestamp.startTime <= currentTime && currentTime < w.timestamp.endTime
+            )
+            const drift = activeWord ? (currentTime - activeWord.timestamp.startTime).toFixed(3) : 'n/a'
+            return (
+              <>
+                <div>Active: "{activeWord?.word ?? '—'}"</div>
+                <div>Expected: {activeWord?.timestamp.startTime.toFixed(3) ?? '—'}s → {activeWord?.timestamp.endTime.toFixed(3) ?? '—'}s</div>
+                <div style={{ color: Number(drift) > 0.1 ? '#ff4444' : '#44ff44' }}>
+                  Drift: +{drift}s
+                </div>
+                <div>Punchlines: {punchlineTimes.map(t => t.toFixed(2)).join(', ')}</div>
+              </>
+            )
+          })()}
+        </div>
           {currentLine && (
             <>
               <div>Line: {currentLine.text.substring(0, 30)}...</div>
               <div>Active word: {currentLine.words.find(w => {
-                const adj = currentTime - 0.05
+                const adj = currentTime - AUDIO_OFFSET
                 return w.timestamp.startTime <= adj && adj < w.timestamp.endTime
               })?.word || 'none'}</div>
             </>
           )}
-        </div>
-      )}
     </AbsoluteFill>
   )
 }

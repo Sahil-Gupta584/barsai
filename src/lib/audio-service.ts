@@ -82,14 +82,18 @@ class AudioService {
   }
 
   async synthesize(text: string): Promise<AudioResult> {
+    console.log('a');
+    
     if (!text.trim()) {
       throw new AudioSynthesisError('Cannot synthesize empty text')
     }
-
+    console.log('b');
+    
     try {
       // Use the with-timestamps endpoint directly via fetch
       // (avoids SDK version issues while @elevenlabs/elevenlabs-js installs)
       const url = `https://api.elevenlabs.io/v1/text-to-speech/${this.voiceId}/with-timestamps`
+      console.log('c');
 
       const res = await fetch(url, {
         method: 'POST',
@@ -108,13 +112,15 @@ class AudioService {
           },
         }),
       })
-
+      console.log('d');
+      
       if (!res.ok) {
         const errText = await res.text()
         throw new AudioSynthesisError(
           `ElevenLabs API error ${res.status}: ${errText}`,
         )
       }
+      console.log('e');
 
       const data = await res.json() as {
         audio_base64?: string
@@ -124,7 +130,6 @@ class AudioService {
           character_end_times_seconds?: number[]
         }
       }
-
       if (!data.audio_base64) {
         throw new AudioSynthesisError('ElevenLabs returned no audio data')
       }

@@ -5,906 +5,645 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const testingLyrics =   {
-    "topic": "nerd programmer",
-    "sections": [
-      {
-        "type": "hook",
-        "lines": [
-          {
-            "text": "[serious] Stack Overflow hero with a basement-dweller glow,",
-            "words": [
-              "[serious]",
-              "Stack",
-              "Overflow",
-              "hero",
-              "with",
-              "a",
-              "basement-dweller",
-              "glow,"
-            ]
-          },
-          {
-            "text": "Writing lines of garbage that you never let show.",
-            "words": [
-              "Writing",
-              "lines",
-              "of",
-              "garbage",
-              "that",
-              "you",
-              "never",
-              "let",
-              "show."
-            ]
-          },
-          {
-            "text": "You’re a master of syntax but a slave to the screen,",
-            "words": [
-              "You’re",
-              "a",
-              "master",
-              "of",
-              "syntax",
-              "but",
-              "a",
-              "slave",
-              "to",
-              "the",
-              "screen,"
-            ]
-          },
-          {
-            "text": "The [sad] saddest dev profile that the world’s ever seen.",
-            "words": [
-              "The",
-              "[sad]",
-              "saddest",
-              "dev",
-              "profile",
-              "that",
-              "the",
-              "world’s",
-              "ever",
-              "seen."
-            ]
-          }
-        ],
-        "stylePreset": {
-          "id": "hook",
-          "fontFamily": "'Bebas Neue', Impact, sans-serif",
-          "color": "#facc15",
-          "accentColor": "#facc15",
-          "animation": "pop",
-          "fontSize": 96,
-          "textTransform": "uppercase"
-        }
-      },
-      {
-        "type": "verse",
-        "lines": [
-          {
-            "text": "[fast] You’re typing out scripts while your social life dies,",
-            "words": [
-              "[fast]",
-              "You’re",
-              "typing",
-              "out",
-              "scripts",
-              "while",
-              "your",
-              "social",
-              "life",
-              "dies,"
-            ]
-          },
-          {
-            "text": "With the blue light reflecting in your hollowed-out eyes.",
-            "words": [
-              "With",
-              "the",
-              "blue",
-              "light",
-              "reflecting",
-              "in",
-              "your",
-              "hollowed-out",
-              "eyes."
-            ]
-          },
-          {
-            "text": "You brag about Rust and your complex array,",
-            "words": [
-              "You",
-              "brag",
-              "about",
-              "Rust",
-              "and",
-              "your",
-              "complex",
-              "array,"
-            ]
-          },
-          {
-            "text": "But you haven't touched grass since the light of the day.",
-            "words": [
-              "But",
-              "you",
-              "haven't",
-              "touched",
-              "grass",
-              "since",
-              "the",
-              "light",
-              "of",
-              "the",
-              "day."
-            ]
-          },
-          {
-            "text": "[angry] Your commit history is mostly just \"fix,\"",
-            "words": [
-              "[angry]",
-              "Your",
-              "commit",
-              "history",
-              "is",
-              "mostly",
-              "just",
-              "\"fix,\""
-            ]
-          },
-          {
-            "text": "You’re failing at life with your developer tricks.",
-            "words": [
-              "You’re",
-              "failing",
-              "at",
-              "life",
-              "with",
-              "your",
-              "developer",
-              "tricks."
-            ]
-          },
-          {
-            "text": "You think you’re elite 'cause you parse through the JSON,",
-            "words": [
-              "You",
-              "think",
-              "you’re",
-              "elite",
-              "'cause",
-              "you",
-              "parse",
-              "through",
-              "the",
-              "JSON,"
-            ]
-          },
-          {
-            "text": "But you’re lonely as hell with your [whispers] headphones left on.",
-            "words": [
-              "But",
-              "you’re",
-              "lonely",
-              "as",
-              "hell",
-              "with",
-              "your",
-              "[whispers]",
-              "headphones",
-              "left",
-              "on."
-            ]
-          }
-        ],
-        "stylePreset": {
-          "id": "verse",
-          "fontFamily": "'Bebas Neue', Impact, sans-serif",
-          "color": "#ffffff",
-          "accentColor": "#facc15",
-          "animation": "slide",
-          "fontSize": 80,
-          "textTransform": "uppercase"
-        }
-      }
-    ],
-    "fullText": " Stack Overflow hero with a basement-dweller glow, Writing lines of garbage that you never let show. You’re a master of syntax but a slave to the screen, The  saddest dev profile that the world’s ever seen.  You’re typing out scripts while your social life dies, With the blue light reflecting in your hollowed-out eyes. You brag about Rust and your complex array, But you haven't touched grass since the light of the day.  Your commit history is mostly just \"fix,\" You’re failing at life with your developer tricks. You think you’re elite 'cause you parse through the JSON, But you’re lonely as hell with your  headphones left on."
-  }
-
-export const testingAudioResult = {
+export const testingLyrics =  {"topic":"aaa","sections":[{"type":"hook","lines":[{"text":"[serious] Three little letters, not a word in the book,","words":["Three","little","letters,","not","a","word","in","the","book,"]},{"text":"Just a placeholder name with a desperate look.","words":["Just","a","placeholder","name","with","a","desperate","look."]},{"text":"You’re the baseline of lazy, the start of the glitch,","words":["You’re","the","baseline","of","lazy,","the","start","of","the","glitch,"]},{"text":"A digital error that nobody’s [angry] itching to switch.","words":["A","digital","error","that","nobody’s","itching","to","switch."]}],"stylePreset":{"id":"hook","fontFamily":"'Bebas Neue', Impact, sans-serif","color":"#facc15","accentColor":"#facc15","animation":"pop","fontSize":96,"textTransform":"uppercase"}},{"type":"verse","lines":[{"text":"You aren’t a brand, you’re a keyboard malfunction,","words":["You","aren’t","a","brand,","you’re","a","keyboard","malfunction,"]},{"text":"A stuttering wreck at the grammar conjunction.","words":["A","stuttering","wreck","at","the","grammar","conjunction."]},{"text":"You’re the scream of a toddler who can’t form a thought,","words":["You’re","the","scream","of","a","toddler","who","can’t","form","a","thought,"]},{"text":"Or a password security team [dramatic] never bought.","words":["Or","a","password","security","team","never","bought."]},{"text":"\"Aaa\" is the sound of a lung hitting zero,","words":["\"Aaa\"","is","the","sound","of","a","lung","hitting","zero,"]},{"text":"You’re nobody’s icon, you’re [slow] nobody’s hero.","words":["You’re","nobody’s","icon,","you’re","nobody’s","hero."]},{"text":"Just a rhythmic void in a world full of style,","words":["Just","a","rhythmic","void","in","a","world","full","of","style,"]},{"text":"You’re the file I delete after staying a while.","words":["You’re","the","file","I","delete","after","staying","a","while."]}],"stylePreset":{"id":"verse","fontFamily":"'Bebas Neue', Impact, sans-serif","color":"#ffffff","accentColor":"#facc15","animation":"slide","fontSize":80,"textTransform":"uppercase"}}],"fullText":"[serious] Three little letters, not a word in the book, Just a placeholder name with a desperate look. You’re the baseline of lazy, the start of the glitch, A digital error that nobody’s [angry] itching to switch. You aren’t a brand, you’re a keyboard malfunction, A stuttering wreck at the grammar conjunction. You’re the scream of a toddler who can’t form a thought, Or a password security team [dramatic] never bought. \"Aaa\" is the sound of a lung hitting zero, You’re nobody’s icon, you’re [slow] nobody’s hero. Just a rhythmic void in a world full of style, You’re the file I delete after staying a while."}
+export const testingAudioResult ={
   "wordTimestamps": [
     {
-      "word": "serious",
+      "word": "[serious]",
       "startTime": 0,
-      "endTime": 0.476,
+      "endTime": 0.237,
       "confidence": 1
     },
     {
-      "word": "Stack",
-      "startTime": 0.556,
-      "endTime": 0.956,
+      "word": "Three",
+      "startTime": 0.25,
+      "endTime": 0.315,
       "confidence": 1
     },
     {
-      "word": "Overflow",
-      "startTime": 1.018,
-      "endTime": 1.514,
+      "word": "little",
+      "startTime": 0.349,
+      "endTime": 0.553,
       "confidence": 1
     },
     {
-      "word": "hero",
-      "startTime": 1.594,
-      "endTime": 1.914,
+      "word": "letters,",
+      "startTime": 0.613,
+      "endTime": 1.433,
       "confidence": 1
     },
     {
-      "word": "with",
-      "startTime": 1.994,
-      "endTime": 2.314,
-      "confidence": 1
-    },
-    {
-      "word": "a",
-      "startTime": 2.354,
-      "endTime": 2.394,
-      "confidence": 1
-    },
-    {
-      "word": "basement-dweller",
-      "startTime": 2.456,
-      "endTime": 3.352,
-      "confidence": 1
-    },
-    {
-      "word": "glow,",
-      "startTime": 3.448,
-      "endTime": 4.152,
-      "confidence": 1
-    },
-    {
-      "word": "Writing",
-      "startTime": 4.272,
-      "endTime": 5.112,
-      "confidence": 1
-    },
-    {
-      "word": "lines",
-      "startTime": 5.165,
-      "endTime": 5.43,
-      "confidence": 1
-    },
-    {
-      "word": "of",
-      "startTime": 5.456,
-      "endTime": 5.508,
-      "confidence": 1
-    },
-    {
-      "word": "garbage",
-      "startTime": 5.578,
-      "endTime": 6.068,
-      "confidence": 1
-    },
-    {
-      "word": "that",
-      "startTime": 6.132,
-      "endTime": 6.388,
-      "confidence": 1
-    },
-    {
-      "word": "you",
-      "startTime": 6.428,
-      "endTime": 6.548,
-      "confidence": 1
-    },
-    {
-      "word": "never",
-      "startTime": 6.614,
-      "endTime": 6.944,
-      "confidence": 1
-    },
-    {
-      "word": "let",
-      "startTime": 7.004,
-      "endTime": 7.184,
-      "confidence": 1
-    },
-    {
-      "word": "show.",
-      "startTime": 7.264,
-      "endTime": 7.824,
-      "confidence": 1
-    },
-    {
-      "word": "You’re",
-      "startTime": 8.044,
-      "endTime": 8.863,
+      "word": "not",
+      "startTime": 1.473,
+      "endTime": 1.593,
       "confidence": 1
     },
     {
       "word": "a",
-      "startTime": 8.903,
-      "endTime": 8.943,
+      "startTime": 1.673,
+      "endTime": 1.753,
       "confidence": 1
     },
     {
-      "word": "master",
-      "startTime": 9.034,
-      "endTime": 9.58,
-      "confidence": 1
-    },
-    {
-      "word": "of",
-      "startTime": 9.606,
-      "endTime": 9.658,
-      "confidence": 1
-    },
-    {
-      "word": "syntax",
-      "startTime": 9.772,
-      "endTime": 10.456,
-      "confidence": 1
-    },
-    {
-      "word": "but",
-      "startTime": 10.556,
-      "endTime": 10.856,
-      "confidence": 1
-    },
-    {
-      "word": "a",
-      "startTime": 10.896,
-      "endTime": 10.936,
-      "confidence": 1
-    },
-    {
-      "word": "slave",
-      "startTime": 11.042,
-      "endTime": 11.572,
-      "confidence": 1
-    },
-    {
-      "word": "to",
-      "startTime": 11.678,
-      "endTime": 11.89,
-      "confidence": 1
-    },
-    {
-      "word": "the",
-      "startTime": 11.91,
-      "endTime": 11.97,
-      "confidence": 1
-    },
-    {
-      "word": "screen,",
-      "startTime": 12.038,
-      "endTime": 13.326,
-      "confidence": 1
-    },
-    {
-      "word": "The",
-      "startTime": 13.366,
-      "endTime": 13.486,
-      "confidence": 1
-    },
-    {
-      "word": "sad",
-      "startTime": 13.606,
-      "endTime": 13.966,
-      "confidence": 1
-    },
-    {
-      "word": "saddest",
-      "startTime": 14.106,
-      "endTime": 14.766,
-      "confidence": 1
-    },
-    {
-      "word": "dev",
-      "startTime": 14.886,
-      "endTime": 15.246,
-      "confidence": 1
-    },
-    {
-      "word": "profile",
-      "startTime": 15.316,
-      "endTime": 15.806,
-      "confidence": 1
-    },
-    {
-      "word": "that",
-      "startTime": 15.886,
-      "endTime": 16.206,
-      "confidence": 1
-    },
-    {
-      "word": "the",
-      "startTime": 16.226,
-      "endTime": 16.286,
-      "confidence": 1
-    },
-    {
-      "word": "world’s",
-      "startTime": 16.352,
-      "endTime": 16.762,
-      "confidence": 1
-    },
-    {
-      "word": "ever",
-      "startTime": 16.874,
-      "endTime": 17.322,
-      "confidence": 1
-    },
-    {
-      "word": "seen.",
-      "startTime": 17.402,
-      "endTime": 17.802,
-      "confidence": 1
-    },
-    {
-      "word": "fast",
-      "startTime": 17.93,
-      "endTime": 18.442,
-      "confidence": 1
-    },
-    {
-      "word": "You’re",
-      "startTime": 18.462,
-      "endTime": 18.6,
-      "confidence": 1
-    },
-    {
-      "word": "typing",
-      "startTime": 18.657,
-      "endTime": 18.999,
-      "confidence": 1
-    },
-    {
-      "word": "out",
-      "startTime": 19.039,
-      "endTime": 19.159,
-      "confidence": 1
-    },
-    {
-      "word": "scripts",
-      "startTime": 19.219,
-      "endTime": 19.639,
-      "confidence": 1
-    },
-    {
-      "word": "while",
-      "startTime": 19.705,
-      "endTime": 20.035,
-      "confidence": 1
-    },
-    {
-      "word": "your",
-      "startTime": 20.051,
-      "endTime": 20.115,
-      "confidence": 1
-    },
-    {
-      "word": "social",
-      "startTime": 20.183,
-      "endTime": 20.591,
-      "confidence": 1
-    },
-    {
-      "word": "life",
-      "startTime": 20.639,
-      "endTime": 20.831,
-      "confidence": 1
-    },
-    {
-      "word": "dies,",
-      "startTime": 20.943,
-      "endTime": 22.111,
-      "confidence": 1
-    },
-    {
-      "word": "With",
-      "startTime": 22.143,
-      "endTime": 22.271,
-      "confidence": 1
-    },
-    {
-      "word": "the",
-      "startTime": 22.311,
-      "endTime": 22.431,
-      "confidence": 1
-    },
-    {
-      "word": "blue",
-      "startTime": 22.479,
-      "endTime": 22.671,
-      "confidence": 1
-    },
-    {
-      "word": "light",
-      "startTime": 22.711,
-      "endTime": 22.911,
-      "confidence": 1
-    },
-    {
-      "word": "reflecting",
-      "startTime": 22.961,
-      "endTime": 23.461,
+      "word": "word",
+      "startTime": 1.817,
+      "endTime": 2.073,
       "confidence": 1
     },
     {
       "word": "in",
-      "startTime": 23.514,
-      "endTime": 23.62,
-      "confidence": 1
-    },
-    {
-      "word": "your",
-      "startTime": 23.652,
-      "endTime": 23.78,
-      "confidence": 1
-    },
-    {
-      "word": "hollowed-out",
-      "startTime": 23.837,
-      "endTime": 24.419,
-      "confidence": 1
-    },
-    {
-      "word": "eyes.",
-      "startTime": 24.531,
-      "endTime": 25.219,
-      "confidence": 1
-    },
-    {
-      "word": "You",
-      "startTime": 25.439,
-      "endTime": 26.099,
-      "confidence": 1
-    },
-    {
-      "word": "brag",
-      "startTime": 26.179,
-      "endTime": 26.499,
-      "confidence": 1
-    },
-    {
-      "word": "about",
-      "startTime": 26.539,
-      "endTime": 26.739,
-      "confidence": 1
-    },
-    {
-      "word": "Rust",
-      "startTime": 26.835,
-      "endTime": 27.219,
-      "confidence": 1
-    },
-    {
-      "word": "and",
-      "startTime": 27.279,
-      "endTime": 27.459,
-      "confidence": 1
-    },
-    {
-      "word": "your",
-      "startTime": 27.491,
-      "endTime": 27.619,
-      "confidence": 1
-    },
-    {
-      "word": "complex",
-      "startTime": 27.699,
-      "endTime": 28.259,
-      "confidence": 1
-    },
-    {
-      "word": "array,",
-      "startTime": 28.325,
-      "endTime": 29.375,
-      "confidence": 1
-    },
-    {
-      "word": "But",
-      "startTime": 29.415,
-      "endTime": 29.535,
-      "confidence": 1
-    },
-    {
-      "word": "you",
-      "startTime": 29.575,
-      "endTime": 29.695,
-      "confidence": 1
-    },
-    {
-      "word": "haven't",
-      "startTime": 29.735,
-      "endTime": 30.015,
-      "confidence": 1
-    },
-    {
-      "word": "touched",
-      "startTime": 30.065,
-      "endTime": 30.415,
-      "confidence": 1
-    },
-    {
-      "word": "grass",
-      "startTime": 30.495,
-      "endTime": 30.895,
-      "confidence": 1
-    },
-    {
-      "word": "since",
-      "startTime": 30.975,
-      "endTime": 31.375,
+      "startTime": 2.1,
+      "endTime": 2.154,
       "confidence": 1
     },
     {
       "word": "the",
-      "startTime": 31.395,
-      "endTime": 31.455,
+      "startTime": 2.174,
+      "endTime": 2.234,
       "confidence": 1
     },
     {
-      "word": "light",
-      "startTime": 31.508,
-      "endTime": 31.773,
+      "word": "book,",
+      "startTime": 2.298,
+      "endTime": 2.954,
       "confidence": 1
     },
     {
-      "word": "of",
-      "startTime": 31.853,
-      "endTime": 32.013,
+      "word": "Just",
+      "startTime": 3.002,
+      "endTime": 3.194,
       "confidence": 1
     },
     {
-      "word": "the",
-      "startTime": 32.033,
-      "endTime": 32.093,
+      "word": "a",
+      "startTime": 3.234,
+      "endTime": 3.274,
       "confidence": 1
     },
     {
-      "word": "day.",
-      "startTime": 32.173,
-      "endTime": 32.493,
+      "word": "placeholder",
+      "startTime": 3.327,
+      "endTime": 3.91,
       "confidence": 1
     },
     {
-      "word": "angry",
-      "startTime": 32.653,
-      "endTime": 33.453,
+      "word": "name",
+      "startTime": 3.99,
+      "endTime": 4.31,
       "confidence": 1
     },
     {
-      "word": "Your",
-      "startTime": 33.485,
-      "endTime": 33.613,
+      "word": "with",
+      "startTime": 4.374,
+      "endTime": 4.63,
       "confidence": 1
     },
     {
-      "word": "commit",
-      "startTime": 33.658,
-      "endTime": 33.928,
+      "word": "a",
+      "startTime": 4.67,
+      "endTime": 4.71,
       "confidence": 1
     },
     {
-      "word": "history",
-      "startTime": 33.978,
-      "endTime": 34.328,
+      "word": "desperate",
+      "startTime": 4.766,
+      "endTime": 5.27,
       "confidence": 1
     },
     {
-      "word": "is",
-      "startTime": 34.434,
-      "endTime": 34.646,
-      "confidence": 1
-    },
-    {
-      "word": "mostly",
-      "startTime": 34.726,
-      "endTime": 35.206,
-      "confidence": 1
-    },
-    {
-      "word": "just",
-      "startTime": 35.318,
-      "endTime": 35.766,
-      "confidence": 1
-    },
-    {
-      "word": "\"fix,\"",
-      "startTime": 35.926,
-      "endTime": 36.484,
+      "word": "look.",
+      "startTime": 5.334,
+      "endTime": 6.11,
       "confidence": 1
     },
     {
       "word": "You’re",
-      "startTime": 36.584,
-      "endTime": 36.962,
-      "confidence": 1
-    },
-    {
-      "word": "failing",
-      "startTime": 37.012,
-      "endTime": 37.362,
-      "confidence": 1
-    },
-    {
-      "word": "at",
-      "startTime": 37.415,
-      "endTime": 37.521,
-      "confidence": 1
-    },
-    {
-      "word": "life",
-      "startTime": 37.585,
-      "endTime": 37.841,
-      "confidence": 1
-    },
-    {
-      "word": "with",
-      "startTime": 37.921,
-      "endTime": 38.241,
-      "confidence": 1
-    },
-    {
-      "word": "your",
-      "startTime": 38.273,
-      "endTime": 38.401,
-      "confidence": 1
-    },
-    {
-      "word": "developer",
-      "startTime": 38.449,
-      "endTime": 38.881,
-      "confidence": 1
-    },
-    {
-      "word": "tricks.",
-      "startTime": 38.949,
-      "endTime": 39.597,
-      "confidence": 1
-    },
-    {
-      "word": "You",
-      "startTime": 39.777,
-      "endTime": 40.317,
-      "confidence": 1
-    },
-    {
-      "word": "think",
-      "startTime": 40.37,
-      "endTime": 40.635,
-      "confidence": 1
-    },
-    {
-      "word": "you’re",
-      "startTime": 40.655,
-      "endTime": 40.793,
-      "confidence": 1
-    },
-    {
-      "word": "elite",
-      "startTime": 40.886,
-      "endTime": 41.351,
-      "confidence": 1
-    },
-    {
-      "word": "'cause",
-      "startTime": 41.471,
-      "endTime": 41.671,
-      "confidence": 1
-    },
-    {
-      "word": "you",
-      "startTime": 41.711,
-      "endTime": 41.831,
-      "confidence": 1
-    },
-    {
-      "word": "parse",
-      "startTime": 41.897,
-      "endTime": 42.227,
-      "confidence": 1
-    },
-    {
-      "word": "through",
-      "startTime": 42.257,
-      "endTime": 42.467,
+      "startTime": 6.24,
+      "endTime": 6.711,
       "confidence": 1
     },
     {
       "word": "the",
-      "startTime": 42.487,
-      "endTime": 42.547,
+      "startTime": 6.731,
+      "endTime": 6.791,
       "confidence": 1
     },
     {
-      "word": "JSON,",
-      "startTime": 42.691,
-      "endTime": 44.067,
+      "word": "baseline",
+      "startTime": 6.871,
+      "endTime": 7.511,
       "confidence": 1
     },
     {
-      "word": "But",
-      "startTime": 44.107,
-      "endTime": 44.227,
+      "word": "of",
+      "startTime": 7.538,
+      "endTime": 7.592,
+      "confidence": 1
+    },
+    {
+      "word": "lazy,",
+      "startTime": 7.688,
+      "endTime": 8.392,
+      "confidence": 1
+    },
+    {
+      "word": "the",
+      "startTime": 8.432,
+      "endTime": 8.552,
+      "confidence": 1
+    },
+    {
+      "word": "start",
+      "startTime": 8.619,
+      "endTime": 8.954,
+      "confidence": 1
+    },
+    {
+      "word": "of",
+      "startTime": 8.981,
+      "endTime": 9.035,
+      "confidence": 1
+    },
+    {
+      "word": "the",
+      "startTime": 9.055,
+      "endTime": 9.115,
+      "confidence": 1
+    },
+    {
+      "word": "glitch,",
+      "startTime": 9.172,
+      "endTime": 9.594,
+      "confidence": 1
+    },
+    {
+      "word": "A",
+      "startTime": 9.794,
+      "endTime": 9.994,
+      "confidence": 1
+    },
+    {
+      "word": "digital",
+      "startTime": 10.054,
+      "endTime": 10.474,
+      "confidence": 1
+    },
+    {
+      "word": "error",
+      "startTime": 10.541,
+      "endTime": 10.876,
+      "confidence": 1
+    },
+    {
+      "word": "that",
+      "startTime": 10.94,
+      "endTime": 11.196,
+      "confidence": 1
+    },
+    {
+      "word": "nobody’s",
+      "startTime": 11.253,
+      "endTime": 11.835,
+      "confidence": 1
+    },
+    {
+      "word": "[angry]",
+      "startTime": 11.867,
+      "endTime": 12.09,
+      "confidence": 1
+    },
+    {
+      "word": "itching",
+      "startTime": 12.098,
+      "endTime": 12.154,
+      "confidence": 1
+    },
+    {
+      "word": "to",
+      "startTime": 12.181,
+      "endTime": 12.235,
+      "confidence": 1
+    },
+    {
+      "word": "switch.",
+      "startTime": 12.304,
+      "endTime": 13.038,
+      "confidence": 1
+    },
+    {
+      "word": "You",
+      "startTime": 13.178,
+      "endTime": 13.598,
+      "confidence": 1
+    },
+    {
+      "word": "aren’t",
+      "startTime": 13.63,
+      "endTime": 13.838,
+      "confidence": 1
+    },
+    {
+      "word": "a",
+      "startTime": 13.958,
+      "endTime": 14.078,
+      "confidence": 1
+    },
+    {
+      "word": "brand,",
+      "startTime": 14.118,
+      "endTime": 14.638,
       "confidence": 1
     },
     {
       "word": "you’re",
-      "startTime": 44.267,
-      "endTime": 44.465,
+      "startTime": 14.658,
+      "endTime": 14.799,
       "confidence": 1
     },
     {
-      "word": "lonely",
-      "startTime": 44.522,
-      "endTime": 44.864,
+      "word": "a",
+      "startTime": 14.839,
+      "endTime": 14.879,
       "confidence": 1
     },
     {
-      "word": "as",
-      "startTime": 44.917,
-      "endTime": 45.023,
+      "word": "keyboard",
+      "startTime": 14.941,
+      "endTime": 15.437,
       "confidence": 1
     },
     {
-      "word": "hell",
-      "startTime": 45.103,
-      "endTime": 45.423,
+      "word": "malfunction,",
+      "startTime": 15.49,
+      "endTime": 16.553,
       "confidence": 1
     },
     {
-      "word": "with",
-      "startTime": 45.487,
-      "endTime": 45.743,
+      "word": "A",
+      "startTime": 16.593,
+      "endTime": 16.633,
       "confidence": 1
     },
     {
-      "word": "your",
-      "startTime": 45.791,
-      "endTime": 45.983,
+      "word": "stuttering",
+      "startTime": 16.683,
+      "endTime": 17.192,
       "confidence": 1
     },
     {
-      "word": "whispers",
-      "startTime": 46.045,
-      "endTime": 46.541,
+      "word": "wreck",
+      "startTime": 17.245,
+      "endTime": 17.51,
       "confidence": 1
     },
     {
-      "word": "headphones",
-      "startTime": 46.599,
-      "endTime": 47.179,
+      "word": "at",
+      "startTime": 17.59,
+      "endTime": 17.75,
       "confidence": 1
     },
     {
-      "word": "left",
-      "startTime": 47.259,
-      "endTime": 47.579,
+      "word": "the",
+      "startTime": 17.77,
+      "endTime": 17.83,
       "confidence": 1
     },
     {
-      "word": "on.",
-      "startTime": 47.685,
-      "endTime": 48.137,
+      "word": "grammar",
+      "startTime": 17.88,
+      "endTime": 18.23,
+      "confidence": 1
+    },
+    {
+      "word": "conjunction.",
+      "startTime": 18.283,
+      "endTime": 19.186,
+      "confidence": 1
+    },
+    {
+      "word": "You’re",
+      "startTime": 19.406,
+      "endTime": 20.147,
+      "confidence": 1
+    },
+    {
+      "word": "the",
+      "startTime": 20.167,
+      "endTime": 20.227,
+      "confidence": 1
+    },
+    {
+      "word": "scream",
+      "startTime": 20.296,
+      "endTime": 20.71,
+      "confidence": 1
+    },
+    {
+      "word": "of",
+      "startTime": 20.763,
+      "endTime": 20.869,
+      "confidence": 1
+    },
+    {
+      "word": "a",
+      "startTime": 21.009,
+      "endTime": 21.149,
+      "confidence": 1
+    },
+    {
+      "word": "toddler",
+      "startTime": 21.184,
+      "endTime": 21.429,
+      "confidence": 1
+    },
+    {
+      "word": "who",
+      "startTime": 21.469,
+      "endTime": 21.589,
+      "confidence": 1
+    },
+    {
+      "word": "can’t",
+      "startTime": 21.649,
+      "endTime": 21.989,
+      "confidence": 1
+    },
+    {
+      "word": "form",
+      "startTime": 22.021,
+      "endTime": 22.149,
+      "confidence": 1
+    },
+    {
+      "word": "a",
+      "startTime": 22.249,
+      "endTime": 22.349,
+      "confidence": 1
+    },
+    {
+      "word": "thought,",
+      "startTime": 22.374,
+      "endTime": 22.869,
+      "confidence": 1
+    },
+    {
+      "word": "Or",
+      "startTime": 23.002,
+      "endTime": 23.268,
+      "confidence": 1
+    },
+    {
+      "word": "a",
+      "startTime": 23.308,
+      "endTime": 23.348,
+      "confidence": 1
+    },
+    {
+      "word": "password",
+      "startTime": 23.41,
+      "endTime": 23.906,
+      "confidence": 1
+    },
+    {
+      "word": "security",
+      "startTime": 23.968,
+      "endTime": 24.464,
+      "confidence": 1
+    },
+    {
+      "word": "team",
+      "startTime": 24.528,
+      "endTime": 24.784,
+      "confidence": 1
+    },
+    {
+      "word": "[dramatic]",
+      "startTime": 25.024,
+      "endTime": 25.393,
+      "confidence": 1
+    },
+    {
+      "word": "never",
+      "startTime": 25.398,
+      "endTime": 25.423,
+      "confidence": 1
+    },
+    {
+      "word": "bought.",
+      "startTime": 25.48,
+      "endTime": 26.142,
+      "confidence": 1
+    },
+    {
+      "word": "\"Aaa\"",
+      "startTime": 26.502,
+      "endTime": 27.342,
+      "confidence": 1
+    },
+    {
+      "word": "is",
+      "startTime": 27.422,
+      "endTime": 27.582,
+      "confidence": 1
+    },
+    {
+      "word": "the",
+      "startTime": 27.622,
+      "endTime": 27.742,
+      "confidence": 1
+    },
+    {
+      "word": "sound",
+      "startTime": 27.795,
+      "endTime": 28.06,
+      "confidence": 1
+    },
+    {
+      "word": "of",
+      "startTime": 28.087,
+      "endTime": 28.141,
+      "confidence": 1
+    },
+    {
+      "word": "a",
+      "startTime": 28.181,
+      "endTime": 28.221,
+      "confidence": 1
+    },
+    {
+      "word": "lung",
+      "startTime": 28.301,
+      "endTime": 28.621,
+      "confidence": 1
+    },
+    {
+      "word": "hitting",
+      "startTime": 28.661,
+      "endTime": 28.941,
+      "confidence": 1
+    },
+    {
+      "word": "zero,",
+      "startTime": 29.053,
+      "endTime": 29.821,
+      "confidence": 1
+    },
+    {
+      "word": "You’re",
+      "startTime": 29.901,
+      "endTime": 30.222,
+      "confidence": 1
+    },
+    {
+      "word": "nobody’s",
+      "startTime": 30.279,
+      "endTime": 30.701,
+      "confidence": 1
+    },
+    {
+      "word": "icon,",
+      "startTime": 30.813,
+      "endTime": 31.501,
+      "confidence": 1
+    },
+    {
+      "word": "you’re",
+      "startTime": 31.541,
+      "endTime": 31.742,
+      "confidence": 1
+    },
+    {
+      "word": "[slow]",
+      "startTime": 31.782,
+      "endTime": 32.142,
+      "confidence": 1
+    },
+    {
+      "word": "nobody’s",
+      "startTime": 32.165,
+      "endTime": 32.383,
+      "confidence": 1
+    },
+    {
+      "word": "hero.",
+      "startTime": 32.463,
+      "endTime": 33.183,
+      "confidence": 1
+    },
+    {
+      "word": "Just",
+      "startTime": 33.327,
+      "endTime": 33.903,
+      "confidence": 1
+    },
+    {
+      "word": "a",
+      "startTime": 33.983,
+      "endTime": 34.063,
+      "confidence": 1
+    },
+    {
+      "word": "rhythmic",
+      "startTime": 34.116,
+      "endTime": 34.54,
+      "confidence": 1
+    },
+    {
+      "word": "void",
+      "startTime": 34.62,
+      "endTime": 34.94,
+      "confidence": 1
+    },
+    {
+      "word": "in",
+      "startTime": 34.967,
+      "endTime": 35.021,
+      "confidence": 1
+    },
+    {
+      "word": "a",
+      "startTime": 35.061,
+      "endTime": 35.101,
+      "confidence": 1
+    },
+    {
+      "word": "world",
+      "startTime": 35.168,
+      "endTime": 35.503,
+      "confidence": 1
+    },
+    {
+      "word": "full",
+      "startTime": 35.551,
+      "endTime": 35.743,
+      "confidence": 1
+    },
+    {
+      "word": "of",
+      "startTime": 35.77,
+      "endTime": 35.824,
+      "confidence": 1
+    },
+    {
+      "word": "style,",
+      "startTime": 35.904,
+      "endTime": 36.624,
+      "confidence": 1
+    },
+    {
+      "word": "You’re",
+      "startTime": 36.684,
+      "endTime": 36.945,
+      "confidence": 1
+    },
+    {
+      "word": "the",
+      "startTime": 36.965,
+      "endTime": 37.025,
+      "confidence": 1
+    },
+    {
+      "word": "file",
+      "startTime": 37.105,
+      "endTime": 37.425,
+      "confidence": 1
+    },
+    {
+      "word": "I",
+      "startTime": 37.465,
+      "endTime": 37.505,
+      "confidence": 1
+    },
+    {
+      "word": "delete",
+      "startTime": 37.574,
+      "endTime": 37.988,
+      "confidence": 1
+    },
+    {
+      "word": "after",
+      "startTime": 38.055,
+      "endTime": 38.39,
+      "confidence": 1
+    },
+    {
+      "word": "staying",
+      "startTime": 38.44,
+      "endTime": 38.79,
+      "confidence": 1
+    },
+    {
+      "word": "a",
+      "startTime": 38.89,
+      "endTime": 38.99,
+      "confidence": 1
+    },
+    {
+      "word": "while.",
+      "startTime": 39.023,
+      "endTime": 39.508,
       "confidence": 1
     }
   ],
-  "durationInSeconds": 48.137,
-  "firstFewWords": [
-    "serious",
-    "Stack",
-    "Overflow",
-    "hero",
-    "with",
-    "a",
-    "basement-dweller",
-    "glow,",
-    "Writing",
-    "lines"
-  ]
+  "durationSeconds": 39.508
 }

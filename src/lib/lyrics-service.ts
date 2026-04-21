@@ -245,7 +245,6 @@ class LyricsService {
     // Parse the JSON response
     const lyrics = parseLyricsFromGemini(lyricsWithTags, sanitizedTopic)
     console.log('Parsed sections:', lyrics.sections.length)
-    console.log('lyrics', JSON.stringify(lyrics));
 
     return lyrics
   }
