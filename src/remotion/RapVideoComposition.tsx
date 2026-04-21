@@ -56,18 +56,22 @@ function getAllWords(
   wordTimestamps: WordTimestamp[],
 ): Array<{ word: string; timestamp: WordTimestamp; lineIndex: number }> {
   const result: Array<{ word: string; timestamp: WordTimestamp; lineIndex: number }> = []
+  
+  // Filter out emotion tags from timestamps to prevent index drift
+  const filteredTimestamps = wordTimestamps.filter(ts => !isEmotionTag(ts.word))
+  
   let tsIndex = 0
   let lineIndex = 0
 
   for (const section of lyrics.sections) {
     for (const line of section.lines) {
-      for (let i = 0; i < line.words.length && tsIndex < wordTimestamps.length; i++) {
+      for (let i = 0; i < line.words.length && tsIndex < filteredTimestamps.length; i++) {
         const word = line.words[i]
-        // Skip emotion tags
+        // Skip emotion tags in lyrics
         if (!isEmotionTag(word)) {
           result.push({
             word: stripEmotionTags(word),
-            timestamp: wordTimestamps[tsIndex++],
+            timestamp: filteredTimestamps[tsIndex++],
             lineIndex,
           })
         }
