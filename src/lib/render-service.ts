@@ -53,6 +53,7 @@ class RenderService {
     // Remotion needs an http URL for audio — use the Vite dev server
     const serverUrl = process.env.BETTER_AUTH_URL ?? 'http://localhost:3000'
     const audioSrc = `${serverUrl}/videos/${jobId}-audio.mp3`
+    const punchSrc = `${serverUrl}/beats/punch.mp3`
 
     const durationInFrames = computeDurationInFrames(wordTimestamps)
     const fps = 30
@@ -64,6 +65,7 @@ class RenderService {
       fps,
       audioSrc,
       beatSrc,
+      punchSrc,
     }
 
     try {

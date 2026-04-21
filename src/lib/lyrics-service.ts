@@ -231,7 +231,7 @@ class LyricsService {
   }
 
   async generateLyrics(topic: string): Promise<LyricsDocument> {
-    return testingLyrics
+    // return testingLyrics
     const sanitizedTopic = topic.trim().slice(0, 200)
 
     // Step 1: Generate base lyrics as JSON

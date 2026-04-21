@@ -5,8 +5,204 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const testingLyrics =  {"topic":"aaa","sections":[{"type":"hook","lines":[{"text":"[serious] Three little letters, not a word in the book,","words":["Three","little","letters,","not","a","word","in","the","book,"]},{"text":"Just a placeholder name with a desperate look.","words":["Just","a","placeholder","name","with","a","desperate","look."]},{"text":"You’re the baseline of lazy, the start of the glitch,","words":["You’re","the","baseline","of","lazy,","the","start","of","the","glitch,"]},{"text":"A digital error that nobody’s [angry] itching to switch.","words":["A","digital","error","that","nobody’s","itching","to","switch."]}],"stylePreset":{"id":"hook","fontFamily":"'Bebas Neue', Impact, sans-serif","color":"#facc15","accentColor":"#facc15","animation":"pop","fontSize":96,"textTransform":"uppercase"}},{"type":"verse","lines":[{"text":"You aren’t a brand, you’re a keyboard malfunction,","words":["You","aren’t","a","brand,","you’re","a","keyboard","malfunction,"]},{"text":"A stuttering wreck at the grammar conjunction.","words":["A","stuttering","wreck","at","the","grammar","conjunction."]},{"text":"You’re the scream of a toddler who can’t form a thought,","words":["You’re","the","scream","of","a","toddler","who","can’t","form","a","thought,"]},{"text":"Or a password security team [dramatic] never bought.","words":["Or","a","password","security","team","never","bought."]},{"text":"\"Aaa\" is the sound of a lung hitting zero,","words":["\"Aaa\"","is","the","sound","of","a","lung","hitting","zero,"]},{"text":"You’re nobody’s icon, you’re [slow] nobody’s hero.","words":["You’re","nobody’s","icon,","you’re","nobody’s","hero."]},{"text":"Just a rhythmic void in a world full of style,","words":["Just","a","rhythmic","void","in","a","world","full","of","style,"]},{"text":"You’re the file I delete after staying a while.","words":["You’re","the","file","I","delete","after","staying","a","while."]}],"stylePreset":{"id":"verse","fontFamily":"'Bebas Neue', Impact, sans-serif","color":"#ffffff","accentColor":"#facc15","animation":"slide","fontSize":80,"textTransform":"uppercase"}}],"fullText":"[serious] Three little letters, not a word in the book, Just a placeholder name with a desperate look. You’re the baseline of lazy, the start of the glitch, A digital error that nobody’s [angry] itching to switch. You aren’t a brand, you’re a keyboard malfunction, A stuttering wreck at the grammar conjunction. You’re the scream of a toddler who can’t form a thought, Or a password security team [dramatic] never bought. \"Aaa\" is the sound of a lung hitting zero, You’re nobody’s icon, you’re [slow] nobody’s hero. Just a rhythmic void in a world full of style, You’re the file I delete after staying a while."}
-export const testingAudioResult ={
+export const testingLyrics = {
+  "topic": "aaa",
+  "sections": [
+    {
+      "type": "hook",
+      "lines": [
+        {
+          "text": "[serious] Three little letters, not a word in the book,",
+          "words": [
+            "Three",
+            "little",
+            "letters,",
+            "not",
+            "a",
+            "word",
+            "in",
+            "the",
+            "book,"
+          ]
+        },
+        {
+          "text": "Just a placeholder name with a desperate look.",
+          "words": [
+            "Just",
+            "a",
+            "placeholder",
+            "name",
+            "with",
+            "a",
+            "desperate",
+            "look."
+          ]
+        },
+        {
+          "text": "You’re the baseline of lazy, the start of the glitch,",
+          "words": [
+            "You’re",
+            "the",
+            "baseline",
+            "of",
+            "lazy,",
+            "the",
+            "start",
+            "of",
+            "the",
+            "glitch,"
+          ]
+        },
+        {
+          "text": "A digital error that nobody’s [angry] itching to switch.",
+          "words": [
+            "A",
+            "digital",
+            "error",
+            "that",
+            "nobody’s",
+            "itching",
+            "to",
+            "switch."
+          ]
+        }
+      ],
+      "stylePreset": {
+        "id": "hook",
+        "fontFamily": "'Bebas Neue', Impact, sans-serif",
+        "color": "#facc15",
+        "accentColor": "#facc15",
+        "animation": "pop",
+        "fontSize": 96,
+        "textTransform": "uppercase"
+      }
+    },
+    {
+      "type": "verse",
+      "lines": [
+        {
+          "text": "You aren’t a brand, you’re a keyboard malfunction,",
+          "words": [
+            "You",
+            "aren’t",
+            "a",
+            "brand,",
+            "you’re",
+            "a",
+            "keyboard",
+            "malfunction,"
+          ]
+        },
+        {
+          "text": "A stuttering wreck at the grammar conjunction.",
+          "words": [
+            "A",
+            "stuttering",
+            "wreck",
+            "at",
+            "the",
+            "grammar",
+            "conjunction."
+          ]
+        },
+        {
+          "text": "You’re the scream of a toddler who can’t form a thought,",
+          "words": [
+            "You’re",
+            "the",
+            "scream",
+            "of",
+            "a",
+            "toddler",
+            "who",
+            "can’t",
+            "form",
+            "a",
+            "thought,"
+          ]
+        },
+        {
+          "text": "Or a password security team [dramatic] never bought.",
+          "words": [
+            "Or",
+            "a",
+            "password",
+            "security",
+            "team",
+            "never",
+            "bought."
+          ]
+        },
+        {
+          "text": "\"Aaa\" is the sound of a lung hitting zero,",
+          "words": [
+            "\"Aaa\"",
+            "is",
+            "the",
+            "sound",
+            "of",
+            "a",
+            "lung",
+            "hitting",
+            "zero,"
+          ]
+        },
+        {
+          "text": "You’re nobody’s icon, you’re [slow] nobody’s hero.",
+          "words": [
+            "You’re",
+            "nobody’s",
+            "icon,",
+            "you’re",
+            "nobody’s",
+            "hero."
+          ]
+        },
+        {
+          "text": "Just a rhythmic void in a world full of style,",
+          "words": [
+            "Just",
+            "a",
+            "rhythmic",
+            "void",
+            "in",
+            "a",
+            "world",
+            "full",
+            "of",
+            "style,"
+          ]
+        },
+        {
+          "text": "You’re the file I delete after staying a while.",
+          "words": [
+            "You’re",
+            "the",
+            "file",
+            "I",
+            "delete",
+            "after",
+            "staying",
+            "a",
+            "while."
+          ]
+        }
+      ],
+      "stylePreset": {
+        "id": "verse",
+        "fontFamily": "'Bebas Neue', Impact, sans-serif",
+        "color": "#ffffff",
+        "accentColor": "#facc15",
+        "animation": "slide",
+        "fontSize": 80,
+        "textTransform": "uppercase"
+      }
+    }
+  ],
+  "fullText": " Three little letters, not a word in the book, Just a placeholder name with a desperate look. You’re the baseline of lazy, the start of the glitch, A digital error that nobody’s  itching to switch. You aren’t a brand, you’re a keyboard malfunction, A stuttering wreck at the grammar conjunction. You’re the scream of a toddler who can’t form a thought, Or a password security team  never bought. \"Aaa\" is the sound of a lung hitting zero, You’re nobody’s icon, you’re  nobody’s hero. Just a rhythmic void in a world full of style, You’re the file I delete after staying a while."
+}
+
+export const testingAudioResult = {
   "wordTimestamps": [
     {
       "word": "[serious]",

@@ -18,13 +18,13 @@ export const rapGenerate = os
 
     try {
       const lyrics = await getLyricsService().generateLyrics(input.topic)
-      console.log('lyrics',JSON.stringify(lyrics));
+      // console.log('lyrics',JSON.stringify(lyrics));
       
-      // const { audioBuffer, wordTimestamps,durationSeconds } = await getAudioService().synthesize(lyrics.fullText)
-      const { audioBuffer, wordTimestamps }={
-        audioBuffer:fs.readFileSync(path.resolve(process.cwd(), env.PUBLIC_VIDEOS_DIR, `${'90962e6b-7e90-4d9b-bda2-63c4797c66ef'}-audio.mp3`)),
-        wordTimestamps:testingAudioResult.wordTimestamps
-      }
+      const { audioBuffer, wordTimestamps,durationSeconds } = await getAudioService().synthesize(lyrics.fullText)
+      // const { audioBuffer, wordTimestamps }={
+      //   audioBuffer:fs.readFileSync(path.resolve(process.cwd(), env.PUBLIC_VIDEOS_DIR, `${'90962e6b-7e90-4d9b-bda2-63c4797c66ef'}-audio.mp3`)),
+      //   wordTimestamps:testingAudioResult.wordTimestamps
+      // }
       // fs.writeFileSync(path.resolve(process.cwd(), env.PUBLIC_VIDEOS_DIR, `${jobId}-audio.mp3`), audioBuffer)
       // console.log(JSON.stringify({wordTimestamps,durationSeconds}));
       

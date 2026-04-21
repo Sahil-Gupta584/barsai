@@ -16,7 +16,9 @@ const { fontFamily: rubikMonoOne } = loadRubikMonoOne()
 const fonts = [oswald, bebasNeue, anton, rubikMonoOne]
 
 // SYNC TUNING: increase if captions lag behind audio, decrease if ahead
-const AUDIO_OFFSET = 0.5
+// NOTE: If audio starts at frame 0 and word timestamps align with audio,
+// this offset should be 0. A positive offset causes highlights to BEHIND audio.
+const AUDIO_OFFSET = 0
 
 export interface RapVideoProps {
   lyrics: LyricsDocument
@@ -30,9 +32,22 @@ export interface RapVideoProps {
 
 // ─── Pure helpers ─────────────────────────────────────────────────────────────
 
+// Emotion tag regex - used both for stripping and counting
+const EMOTION_TAG_REGEX = /^\[(sad|angry|happily|excited|calm|serious|whispers|shouts|slow|fast|laughs|sighs|gasp|emphasis|dramatic|sorrowful|clears throat|silence|long_pause|break)\]$/i
+
 // Remove emotion tags from text for display
 function stripEmotionTags(text: string): string {
-  return text.replace(/\[(sad|angry|happily|excited|calm|serious|whispers|shouts|slow|fast|laughs|sighs|gasp|emphasis|dramatic|sorrowful|clears throat|silence|long_pause|break)\]/gi, '').trim()
+  return text.replace(EMOTION_TAG_REGEX, '').trim()
+}
+
+// Check if word is an emotion tag (consolidated logic)
+function isEmotionTag(word: string): boolean {
+  return EMOTION_TAG_REGEX.test(word)
+}
+
+// Count non-emotion-tag words in a line
+function countRealWords(line: string[]): number {
+  return line.filter(w => !isEmotionTag(w)).length
 }
 
 // Group all words with their timestamps - keep full sentences together
@@ -49,7 +64,7 @@ function getAllWords(
       for (let i = 0; i < line.words.length && tsIndex < wordTimestamps.length; i++) {
         const word = line.words[i]
         // Skip emotion tags
-        if (!/^\[(sad|angry|happily|excited|calm|serious|whispers|shouts|slow|fast|laughs|sighs|gasp|emphasis|dramatic|sorrowful|clears throat|silence|long_pause|break)\]$/i.test(word)) {
+        if (!isEmotionTag(word)) {
           result.push({
             word: stripEmotionTags(word),
             timestamp: wordTimestamps[tsIndex++],
@@ -69,20 +84,18 @@ function getCurrentLine(
   currentTime: number,
   allWords: Array<{ word: string; timestamp: WordTimestamp; lineIndex: number }>,
 ): { text: string; words: Array<{ word: string; timestamp: WordTimestamp }> } | null {
-  // SYNC TUNING: if captions lag behind audio, increase this value.
-  // If captions are ahead of audio, decrease it.
-  // Current observed drift: audio leads captions by ~0.5s
-  const adjustedTime = currentTime - AUDIO_OFFSET
-
-  // Find which word is currently active
+  // Find which word is currently active using raw time (audio plays from frame 0)
   const activeWord = allWords.find(
-    w => w.timestamp.startTime <= adjustedTime && adjustedTime < w.timestamp.endTime
+    w => w.timestamp.startTime <= currentTime && currentTime < w.timestamp.endTime
   )
 
-  if (!activeWord) return null
+  // Use active word's line, or if between words, find last word that ended
+  const targetWord = activeWord || allWords.filter(w => currentTime >= w.timestamp.endTime).at(-1)
+  
+  if (!targetWord) return null
 
   // Get all words from the same line
-  const lineWords = allWords.filter(w => w.lineIndex === activeWord.lineIndex)
+  const lineWords = allWords.filter(w => w.lineIndex === targetWord.lineIndex)
   
   return {
     text: lineWords.map(w => w.word).join(' '),
@@ -143,6 +156,7 @@ function KaraokeWord({
   fps,
   isActive,
   wordIndex,
+  lineEndTime,
 }: {
   word: string
   timestamp: WordTimestamp
@@ -150,17 +164,20 @@ function KaraokeWord({
   fps: number
   isActive: boolean
   wordIndex: number
+  lineEndTime: number
 }) {
   const currentTime = frame / fps
-  const adjustedTime = currentTime - AUDIO_OFFSET // Same offset as getCurrentLine
-  const isPast = adjustedTime >= timestamp.endTime
+  // A word stays "highlighted" until the entire line is done (karaoke style)
+  const isPast = currentTime >= lineEndTime
 
   // Use different font for each word for variety
   const fontFamily = fonts[wordIndex % fonts.length]
 
-  // Spring animation for active word
+  // Spring animation - calculate frames since this word became active
+  // This ensures the spring plays once when word becomes active, not continuously
+  const framesSinceStart = Math.max(0, frame - Math.round(timestamp.startTime * fps))
   const scale = isActive ? spring({
-    frame: frame - (timestamp.startTime * fps),
+    frame: framesSinceStart,
     fps,
     config: {
       damping: 200,
@@ -281,12 +298,12 @@ export function RapVideoComposition({
   const punchlineTimes = lyrics.sections.map(section => {
     const lastLine = section.lines[section.lines.length - 1]
     if (!lastLine) return null
-    // Count words before this line to find its index in allWords
+    // Count non-emotion words before this line (must match getAllWords filtering)
     const wordsBeforeLastLine = section.lines
       .slice(0, section.lines.length - 1)
-      .reduce((acc, l) => acc + l.words.length, 0)
+      .reduce((acc, l) => acc + countRealWords(l.words), 0)
     const sectionStartIndex = allWords.findIndex(w =>
-      section.lines[0]?.words[0] === w.word
+      section.lines[0]?.words.find(rawWord => !isEmotionTag(rawWord) && stripEmotionTags(rawWord) === w.word)
     )
     if (sectionStartIndex === -1) return null
     const firstWordOfLastLine = allWords[sectionStartIndex + wordsBeforeLastLine]
@@ -370,17 +387,20 @@ export function RapVideoComposition({
             }}
           >
             {currentLine.words.map((w, i) => {
-              const adjustedTime = currentTime - AUDIO_OFFSET // Same offset
-              const isActive = w.timestamp.startTime <= adjustedTime && adjustedTime < w.timestamp.endTime
+              // Direct time comparison - no offset needed if audio starts at frame 0
+              const isActive = currentTime >= w.timestamp.startTime && currentTime < w.timestamp.endTime
+              // Pass the end time of the last word in the line so all words stay lit until line ends
+              const lineEndTime = currentLine.words[currentLine.words.length - 1].timestamp.endTime
               return (
                 <KaraokeWord
-                  key={`${w.word}-${i}`}
+                  key={`${w.word}-${i}-${w.timestamp.startTime}`}
                   word={w.word}
                   timestamp={w.timestamp}
                   frame={frame}
                   fps={fps}
                   isActive={isActive}
                   wordIndex={i}
+                  lineEndTime={lineEndTime}
                 />
               )
             })}
@@ -426,8 +446,9 @@ export function RapVideoComposition({
         >
           <div>Frame: {frame} | Time: {currentTime.toFixed(3)}s | Offset: {AUDIO_OFFSET}s</div>
           {(() => {
+            // Direct comparison - no offset
             const activeWord = allWords.find(w =>
-              w.timestamp.startTime <= currentTime && currentTime < w.timestamp.endTime
+              currentTime >= w.timestamp.startTime && currentTime < w.timestamp.endTime
             )
             const drift = activeWord ? (currentTime - activeWord.timestamp.startTime).toFixed(3) : 'n/a'
             return (
@@ -444,11 +465,14 @@ export function RapVideoComposition({
         </div>
           {currentLine && (
             <>
-              <div>Line: {currentLine.text.substring(0, 30)}...</div>
-              <div>Active word: {currentLine.words.find(w => {
-                const adj = currentTime - AUDIO_OFFSET
-                return w.timestamp.startTime <= adj && adj < w.timestamp.endTime
-              })?.word || 'none'}</div>
+              <div style={{ position: 'absolute', top: 150, left: 20, fontFamily: robotoMono, fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>
+                Line: {currentLine.text.substring(0, 30)}...
+              </div>
+              <div style={{ position: 'absolute', top: 170, left: 20, fontFamily: robotoMono, fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>
+                Active word: {currentLine.words.find(w => 
+                  currentTime >= w.timestamp.startTime && currentTime < w.timestamp.endTime
+                )?.word || 'none'}
+              </div>
             </>
           )}
     </AbsoluteFill>
