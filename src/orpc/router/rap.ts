@@ -85,12 +85,12 @@ export const rapPreview = os
     const userId = session?.user.id
 
     // Check limits if logged in
-    // if (userId) {
-    //   const [stats] = await db.select({ value: count() }).from(rapJobs).where(eq(rapJobs.userId, userId))
-    //   if (stats.value >= 2) {
-    //     throw new ORPCError('FORBIDDEN', { message: 'You have reached your limit of 2 raps.' })
-    //   }
-    // }
+    if (userId) {
+      const [stats] = await db.select({ value: count() }).from(rapJobs).where(eq(rapJobs.userId, userId))
+      if (stats.value >= 2) {
+        throw new ORPCError('FORBIDDEN', { message: 'You have reached your limit of 2 raps.' })
+      }
+    }
 
     const jobId = uuid()
 
