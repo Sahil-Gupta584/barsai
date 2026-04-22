@@ -2,7 +2,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { bundle } from '@remotion/bundler'
 import { renderMedia, selectComposition } from '@remotion/renderer'
-import { renderVideoOnLambda } from '@remotion/lambda/client'
 import { RenderError, type RenderInput } from './rap-types'
 
 // ─── Serverless detection ─────────────────────────────────────────────────────
@@ -36,20 +35,12 @@ export function computeDurationInFrames(
 
 class RenderService {
   /**
-   * Main entry point: automatically chooses between local and Lambda rendering
+   * Main entry point
    */
   async render(input: RenderInput): Promise<{ videoUrl?: string; buffer?: Buffer }> {
-    const useLambda = !!process.env.REMOTION_LAMBDA_FUNCTION_NAME && isServerless()
-
-    if (useLambda) {
-      console.log('Using Remotion Lambda for rendering...')
-      const videoUrl = await this.renderOnLambda(input)
-      return { videoUrl }
-    } else {
-      console.log('Using local Remotion for rendering...')
-      const buffer = await this.renderVideo(input)
-      return { buffer }
-    }
+    console.log('Using local Remotion for rendering...')
+    const buffer = await this.renderVideo(input)
+    return { buffer }
   }
 
   /**
@@ -130,47 +121,6 @@ class RenderService {
       throw new RenderError(`Remotion render failed: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
-
-  /**
-   * Cloud render (AWS Lambda based)
-   */
-  async renderOnLambda(input: RenderInput): Promise<string> {
-    const { lyrics, wordTimestamps, audioBuffer, beatBuffer } = input
-    const durationInFrames = computeDurationInFrames(wordTimestamps)
-    const fps = 30
-
-    // For Lambda, we MUST use public URLs for audio files because Lambda can't access local files
-    // We expect them to be uploaded to a public location (like our public/videos dir served by Vercel)
-    // Or we could upload them to S3. For simplicity, we assume they are served from BETTER_AUTH_URL
-    const jobId = path.basename(input.outputPath, '.mp4')
-    const serverUrl = process.env.BETTER_AUTH_URL ?? 'https://your-app.vercel.app'
-    
-    // Note: On Vercel, we can't write to public/ during runtime.
-    // So for Lambda, we should ideally upload these buffers to S3 first.
-    // For now, let's assume they are either already there or provide a warning.
-    const audioSrc = `${serverUrl}/videos/${jobId}-audio.mp3`
-    const beatSrc = beatBuffer ? `${serverUrl}/videos/${jobId}-beat.mp3` : undefined
-    const punchSrc = `${serverUrl}/beats/punch.mp3`
-
-    const { renderId, bucketName } = await renderVideoOnLambda({
-      region: (process.env.REMOTION_LAMBDA_REGION as any) || 'us-east-1',
-      functionName: process.env.REMOTION_LAMBDA_FUNCTION_NAME!,
-      serveUrl: process.env.REMOTION_LAMBDA_SERVE_URL!,
-      composition: 'RapVideo',
-      inputProps: {
-        lyrics,
-        wordTimestamps,
-        durationInFrames,
-        fps,
-        audioSrc,
-        beatSrc,
-        punchSrc,
-      },
-      codec: 'h264',
-      privacy: 'public',
-    })
-
-    return `https://${bucketName}.s3.${process.env.REMOTION_LAMBDA_REGION || 'us-east-1'}.amazonaws.com/renders/${renderId}/out.mp4`
   }
 }
 
