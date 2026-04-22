@@ -33,7 +33,7 @@ export interface RapVideoProps {
 // ─── Pure helpers ─────────────────────────────────────────────────────────────
 
 // Emotion tag regex - used both for stripping and counting
-const EMOTION_TAG_REGEX = /^\[(sad|angry|happily|excited|calm|serious|whispers|shouts|slow|fast|laughs|sighs|gasp|emphasis|dramatic|sorrowful|clears throat|silence|long_pause|break)\]$/i
+const EMOTION_TAG_REGEX = /^\[(sad|angry|happily|excited|calm|serious|whispers|shouts|slow|fast|laughs|sighs|gasp|emphasis|dramatic|sorrowful|clears throat|silence|long_pause|break|BOOM)\]$/i
 
 // Remove emotion tags from text for display
 function stripEmotionTags(text: string): string {
@@ -54,26 +54,35 @@ function countRealWords(line: string[]): number {
 function getAllWords(
   lyrics: LyricsDocument,
   wordTimestamps: WordTimestamp[],
-): Array<{ word: string; timestamp: WordTimestamp; lineIndex: number }> {
-  const result: Array<{ word: string; timestamp: WordTimestamp; lineIndex: number }> = []
-  
+): Array<{ word: string; timestamp: WordTimestamp; lineIndex: number; isBoom?: boolean }> {
+  const result: Array<{ word: string; timestamp: WordTimestamp; lineIndex: number; isBoom?: boolean }> = []
+
   // Filter out emotion tags from timestamps to prevent index drift
   const filteredTimestamps = wordTimestamps.filter(ts => !isEmotionTag(ts.word))
-  
+
   let tsIndex = 0
   let lineIndex = 0
+  let pendingBoom = false
 
   for (const section of lyrics.sections) {
     for (const line of section.lines) {
       for (let i = 0; i < line.words.length && tsIndex < filteredTimestamps.length; i++) {
         const word = line.words[i]
-        // Skip emotion tags in lyrics
+
+        if (word.toUpperCase() === '[BOOM]') {
+          pendingBoom = true
+          continue
+        }
+
+        // Skip other emotion tags in lyrics
         if (!isEmotionTag(word)) {
           result.push({
             word: stripEmotionTags(word),
             timestamp: filteredTimestamps[tsIndex++],
             lineIndex,
+            isBoom: pendingBoom
           })
+          pendingBoom = false
         }
       }
       lineIndex++
@@ -95,12 +104,12 @@ function getCurrentLine(
 
   // Use active word's line, or if between words, find last word that ended
   const targetWord = activeWord || allWords.filter(w => currentTime >= w.timestamp.endTime).at(-1)
-  
+
   if (!targetWord) return null
 
   // Get all words from the same line
   const lineWords = allWords.filter(w => w.lineIndex === targetWord.lineIndex)
-  
+
   return {
     text: lineWords.map(w => w.word).join(' '),
     words: lineWords.map(w => ({ word: w.word, timestamp: w.timestamp })),
@@ -153,10 +162,10 @@ function FullWidthWaveform({ frame, fps }: { frame: number; fps: number }) {
 
 // ─── Animated word with karaoke-style highlighting ───────────────────────────
 
-function KaraokeWord({ 
-  word, 
-  timestamp, 
-  frame, 
+function KaraokeWord({
+  word,
+  timestamp,
+  frame,
   fps,
   isActive,
   wordIndex,
@@ -205,11 +214,11 @@ function KaraokeWord({
         marginRight: 18,
         lineHeight: 1.3,
         letterSpacing: '0.02em',
-        textShadow: isActive 
-          ? `0 0 40px #facc1590, 0 0 80px #facc1550, 0 6px 30px rgba(0,0,0,0.8)` 
-          : isPast 
-          ? '0 3px 15px rgba(0,0,0,0.5)'
-          : '0 2px 10px rgba(0,0,0,0.3)',
+        textShadow: isActive
+          ? `0 0 40px #facc1590, 0 0 80px #facc1550, 0 6px 30px rgba(0,0,0,0.8)`
+          : isPast
+            ? '0 3px 15px rgba(0,0,0,0.5)'
+            : '0 2px 10px rgba(0,0,0,0.3)',
         transform: `scale(${scale}) rotate(${rotation}deg)`,
         transition: 'font-size 0.15s ease-out, color 0.15s ease-out',
         filter: isActive ? 'brightness(1.3) drop-shadow(0 0 10px #facc15)' : 'brightness(1)',
@@ -229,7 +238,7 @@ function BackgroundParticles({ frame }: { frame: number }) {
     const y = (Math.sin(frame * 0.02 + i) * 200 + 540)
     const size = 4 + Math.sin(frame * 0.05 + i) * 2
     const opacity = 0.1 + Math.sin(frame * 0.03 + i) * 0.05
-    
+
     return { x, y, size, opacity }
   })
 
@@ -297,23 +306,39 @@ export function RapVideoComposition({
   const allWords = getAllWords(lyrics, wordTimestamps)
   const currentLine = getCurrentLine(currentTime, allWords)
 
-  // Punchline = last line of each section
-  // Fire punch.mp3 0.1s BEFORE the line starts (anticipation hit)
-  const punchlineTimes = lyrics.sections.map(section => {
-    const lastLine = section.lines[section.lines.length - 1]
-    if (!lastLine) return null
-    // Count non-emotion words before this line (must match getAllWords filtering)
-    const wordsBeforeLastLine = section.lines
-      .slice(0, section.lines.length - 1)
-      .reduce((acc, l) => acc + countRealWords(l.words), 0)
-    const sectionStartIndex = allWords.findIndex(w =>
-      section.lines[0]?.words.find(rawWord => !isEmotionTag(rawWord) && stripEmotionTags(rawWord) === w.word)
-    )
-    if (sectionStartIndex === -1) return null
-    const firstWordOfLastLine = allWords[sectionStartIndex + wordsBeforeLastLine]
-    if (!firstWordOfLastLine) return null
-    return Math.max(0, firstWordOfLastLine.timestamp.startTime - 0.1)
-  }).filter((t): t is number => t !== null)
+  // Identify and trigger punchlines
+  const boomTags = allWords.filter(w => {
+    // Find words that were preceded by a [BOOM] tag in the raw lyrics
+    // (We'll update getAllWords to include this info if needed, or just look for tags here)
+    return false; // Placeholder for now
+  })
+
+  // Dynamic punchline times: 
+  // 1. Any word associated with a [BOOM] tag
+  // 2. The first word of the last line of each section (as a fallback)
+  const punchlineTimes: number[] = []
+
+  // Add [BOOM] tag times (we'll implement the detection in getAllWords)
+  const boomWordTimes = allWords
+    .filter(w => (w as any).isBoom)
+    .map(w => w.timestamp.startTime)
+
+  punchlineTimes.push(...boomWordTimes)
+
+  // If no [BOOM] tags were found, use the last-line fallback
+  if (punchlineTimes.length === 0) {
+    let currentGlobalLineIndex = 0
+    for (const section of lyrics.sections) {
+      const lastLineRelativeIndex = section.lines.length - 1
+      const lastLineGlobalIndex = currentGlobalLineIndex + lastLineRelativeIndex
+      currentGlobalLineIndex += section.lines.length
+
+      const firstWordOfLastLine = allWords.find(w => w.lineIndex === lastLineGlobalIndex)
+      if (firstWordOfLastLine) {
+        punchlineTimes.push(firstWordOfLastLine.timestamp.startTime)
+      }
+    }
+  }
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#0a0a0a' }}>
@@ -336,9 +361,9 @@ export function RapVideoComposition({
 
       {/* Audio - vocals */}
       {audioSrc && <Audio src={audioSrc} />}
-      
+
       {/* Audio - background beat (looped at low volume so vocals stay clear) */}
-      {beatSrc && <Audio src={beatSrc} volume={0.25} loop />}
+      {beatSrc && <Audio src={beatSrc} volume={0.15} loop />}
 
       {/* Punchline flash effect — white flash + scale on punchline hits */}
       {punchlineTimes.map((t, i) => {
@@ -363,8 +388,8 @@ export function RapVideoComposition({
 
       {/* Audio - punchline boom: fires at the start of each section's last line */}
       {punchSrc && punchlineTimes.map((t, i) => (
-        <Sequence key={i} from={Math.round(t * fps)} durationInFrames={Math.round(fps * 1.5)}>
-          <Audio src={punchSrc} volume={0.7} />
+        <Sequence key={i} from={Math.round(t * fps)} durationInFrames={Math.round(fps * 2.0)}>
+          <Audio src={punchSrc} volume={5.0} />
         </Sequence>
       ))}
 
@@ -435,50 +460,50 @@ export function RapVideoComposition({
       </div>
 
       {/* Debug overlay - shows timing info */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 20,
-            left: 20,
-            fontFamily: robotoMono,
-            fontSize: 14,
-            color: 'rgba(255,255,255,0.7)',
-            backgroundColor: 'rgba(0,0,0,0.7)',
-            padding: 10,
-            borderRadius: 5,
-          }}
-        >
-          <div>Frame: {frame} | Time: {currentTime.toFixed(3)}s | Offset: {AUDIO_OFFSET}s</div>
-          {(() => {
-            // Direct comparison - no offset
-            const activeWord = allWords.find(w =>
-              currentTime >= w.timestamp.startTime && currentTime < w.timestamp.endTime
-            )
-            const drift = activeWord ? (currentTime - activeWord.timestamp.startTime).toFixed(3) : 'n/a'
-            return (
-              <>
-                <div>Active: "{activeWord?.word ?? '—'}"</div>
-                <div>Expected: {activeWord?.timestamp.startTime.toFixed(3) ?? '—'}s → {activeWord?.timestamp.endTime.toFixed(3) ?? '—'}s</div>
-                <div style={{ color: Number(drift) > 0.1 ? '#ff4444' : '#44ff44' }}>
-                  Drift: +{drift}s
-                </div>
-                <div>Punchlines: {punchlineTimes.map(t => t.toFixed(2)).join(', ')}</div>
-              </>
-            )
-          })()}
-        </div>
-          {currentLine && (
+      <div
+        style={{
+          position: 'absolute',
+          top: 20,
+          left: 20,
+          fontFamily: robotoMono,
+          fontSize: 14,
+          color: 'rgba(255,255,255,0.7)',
+          backgroundColor: 'rgba(0,0,0,0.7)',
+          padding: 10,
+          borderRadius: 5,
+        }}
+      >
+        <div>Frame: {frame} | Time: {currentTime.toFixed(3)}s | Offset: {AUDIO_OFFSET}s</div>
+        {(() => {
+          // Direct comparison - no offset
+          const activeWord = allWords.find(w =>
+            currentTime >= w.timestamp.startTime && currentTime < w.timestamp.endTime
+          )
+          const drift = activeWord ? (currentTime - activeWord.timestamp.startTime).toFixed(3) : 'n/a'
+          return (
             <>
-              <div style={{ position: 'absolute', top: 150, left: 20, fontFamily: robotoMono, fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>
-                Line: {currentLine.text.substring(0, 30)}...
+              <div>Active: "{activeWord?.word ?? '—'}"</div>
+              <div>Expected: {activeWord?.timestamp.startTime.toFixed(3) ?? '—'}s → {activeWord?.timestamp.endTime.toFixed(3) ?? '—'}s</div>
+              <div style={{ color: Number(drift) > 0.1 ? '#ff4444' : '#44ff44' }}>
+                Drift: +{drift}s
               </div>
-              <div style={{ position: 'absolute', top: 170, left: 20, fontFamily: robotoMono, fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>
-                Active word: {currentLine.words.find(w => 
-                  currentTime >= w.timestamp.startTime && currentTime < w.timestamp.endTime
-                )?.word || 'none'}
-              </div>
+              <div>Punchlines: {punchlineTimes.map(t => t.toFixed(2)).join(', ')}</div>
             </>
-          )}
+          )
+        })()}
+      </div>
+      {currentLine && (
+        <>
+          <div style={{ position: 'absolute', top: 150, left: 20, fontFamily: robotoMono, fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>
+            Line: {currentLine.text.substring(0, 30)}...
+          </div>
+          <div style={{ position: 'absolute', top: 170, left: 20, fontFamily: robotoMono, fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>
+            Active word: {currentLine.words.find(w =>
+              currentTime >= w.timestamp.startTime && currentTime < w.timestamp.endTime
+            )?.word || 'none'}
+          </div>
+        </>
+      )}
     </AbsoluteFill>
   )
 }

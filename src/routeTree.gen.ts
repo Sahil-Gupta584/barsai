@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as RapRouteImport } from './routes/rap'
+import { Route as PlayerTestRouteImport } from './routes/player-test'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiSplatRouteImport } from './routes/api.$'
@@ -25,6 +26,11 @@ const TestRoute = TestRouteImport.update({
 const RapRoute = RapRouteImport.update({
   id: '/rap',
   path: '/rap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayerTestRoute = PlayerTestRouteImport.update({
+  id: '/player-test',
+  path: '/player-test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -56,6 +62,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/player-test': typeof PlayerTestRoute
   '/rap': typeof RapRoute
   '/test': typeof TestRoute
   '/api/$': typeof ApiSplatRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/player-test': typeof PlayerTestRoute
   '/rap': typeof RapRoute
   '/test': typeof TestRoute
   '/api/$': typeof ApiSplatRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/player-test': typeof PlayerTestRoute
   '/rap': typeof RapRoute
   '/test': typeof TestRoute
   '/api/$': typeof ApiSplatRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/player-test'
     | '/rap'
     | '/test'
     | '/api/$'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/player-test'
     | '/rap'
     | '/test'
     | '/api/$'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/player-test'
     | '/rap'
     | '/test'
     | '/api/$'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  PlayerTestRoute: typeof PlayerTestRoute
   RapRoute: typeof RapRoute
   TestRoute: typeof TestRoute
   ApiSplatRoute: typeof ApiSplatRoute
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/rap'
       fullPath: '/rap'
       preLoaderRoute: typeof RapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/player-test': {
+      id: '/player-test'
+      path: '/player-test'
+      fullPath: '/player-test'
+      preLoaderRoute: typeof PlayerTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  PlayerTestRoute: PlayerTestRoute,
   RapRoute: RapRoute,
   TestRoute: TestRoute,
   ApiSplatRoute: ApiSplatRoute,

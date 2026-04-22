@@ -30,32 +30,32 @@ Line 6 text here
 Line 7 text here
 Line 8 text here
 
-STYLE: Roasting/diss track - clever insults, wordplay, funny.
+STYLE: complementing-to-roast.
 
 EXAMPLE OUTPUT:
 ## Hook
-Architect of worlds, I'm the king of the code,
-Building the future in an incognito mode.
-High-level thinker with a six-figure pay,
-Until the compiler gets in my way.
+Genius at night, legend in the code
+Master of logic on this lonely road
+They call you smart, yeah you carry the load
+But damn bro, when’s the last time you showered?  
 
 ## Verse
-You call yourself a genius, a silicon god,
-But your GitHub activity is looking quite odd.
-You brag about Python and your AI stack,
-But you can't exit Vim and your posture is slack.
-Your LinkedIn says Visionary, Leader, and Pro,
-But your logic is spaghetti and your queries are slow.
-You bought a mechanical keyboard that clicks like a train,
-To hide the fact you've got nothing but bugs in your brain.
+You built that feature in record time, respect
+Fixed three crashes before the team even checked
+Your logic so clean, it deserves an award
+But your room smells like socks and old Discord
+You know every framework, every design pattern
+While your plants died from total abandonment
+Queen of algorithms, king of the late grind
+But your sleep schedule? Straight up undefined  
 `.trim()
 
 const EMOTION_TAGS_PROMPT = (lyrics: string) => `
 Add emotion tags to this rap. Return in the SAME markdown format.
 
-SUPPORTED TAGS: [sad], [angry], [happily], [excited], [calm], [serious], [whispers], [shouts], [slow], [fast], [laughs], [sighs], [gasp], [emphasis], [dramatic]
+SUPPORTED TAGS: [sad], [angry], [happily], [excited], [calm], [serious], [whispers], [shouts], [slow], [fast], [laughs], [sighs], [gasp], [emphasis], [dramatic], [BOOM]
 
-Add 2-4 tags INLINE in the text.
+Add 2-5 tags INLINE in the text. Use [BOOM] for major punchlines or transitions.
 
 EXAMPLE:
 ## Hook
@@ -80,7 +80,7 @@ function tokenize(line: string): string[] {
     .split(/\s+/)
     .filter((w) => w.length > 0)
     // Filter out emotion tags from the words array
-    .filter((w) => !/^\[(sad|angry|happily|excited|calm|serious|whispers|shouts|slow|fast|laughs|sighs|gasp|emphasis|dramatic|sorrowful|clears throat|silence|long_pause|break)\]$/i.test(w))
+    .filter((w) => !/^\[(sad|angry|happily|excited|calm|serious|whispers|shouts|slow|fast|laughs|sighs|gasp|emphasis|dramatic|sorrowful|clears throat|silence|long_pause|break|BOOM)\]$/i.test(w))
 }
 
 export function parseLyricsFromGemini(

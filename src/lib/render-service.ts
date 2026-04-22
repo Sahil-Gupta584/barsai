@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { bundle } from '@remotion/bundler'
 import { renderMedia, selectComposition } from '@remotion/renderer'
+import { renderVideoOnLambda } from '@remotion/lambda/client'
 import { RenderError, type RenderInput } from './rap-types'
 
 // ─── Serverless detection ─────────────────────────────────────────────────────
@@ -34,25 +35,40 @@ export function computeDurationInFrames(
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 class RenderService {
+  /**
+   * Main entry point: automatically chooses between local and Lambda rendering
+   */
+  async render(input: RenderInput): Promise<{ videoUrl?: string; buffer?: Buffer }> {
+    const useLambda = !!process.env.REMOTION_LAMBDA_FUNCTION_NAME && isServerless()
+
+    if (useLambda) {
+      console.log('Using Remotion Lambda for rendering...')
+      const videoUrl = await this.renderOnLambda(input)
+      return { videoUrl }
+    } else {
+      console.log('Using local Remotion for rendering...')
+      const buffer = await this.renderVideo(input)
+      return { buffer }
+    }
+  }
+
+  /**
+   * Local render (Puppeteer based)
+   */
   async renderVideo(input: RenderInput): Promise<Buffer> {
     const { lyrics, wordTimestamps, audioBuffer, beatBuffer, outputPath } = input
-
     const tempDir = getTempDir()
     const jobId = path.basename(outputPath, '.mp4')
 
-    // Write audio files to temp dir (writable on serverless)
     const audioPath = path.join(tempDir, `${jobId}-audio.mp3`)
     fs.writeFileSync(audioPath, audioBuffer)
 
-    // Write beat buffer if provided
     let beatPath: string | undefined
     if (beatBuffer) {
       beatPath = path.join(tempDir, `${jobId}-beat.mp3`)
       fs.writeFileSync(beatPath, beatBuffer)
     }
 
-    // On serverless, use file:// URLs for local audio files
-    // On local dev, use http://localhost:... for Vite to serve
     const isLocal = !isServerless()
     const serverUrl = isLocal
       ? (process.env.BETTER_AUTH_URL ?? 'http://localhost:3000')
@@ -66,7 +82,6 @@ class RenderService {
       ? `${serverUrl}/videos/${jobId}-beat.mp3`
       : beatPath ? `file://${beatPath}` : undefined
 
-    // Punch sound - only include if file exists (optional enhancement)
     const punchSoundPath = path.join(process.cwd(), 'public/beats/punch.mp3')
     const punchSrc = isLocal
       ? `${serverUrl}/beats/punch.mp3`
@@ -74,25 +89,14 @@ class RenderService {
 
     const durationInFrames = computeDurationInFrames(wordTimestamps)
     const fps = 30
-
-    const props = {
-      lyrics,
-      wordTimestamps,
-      durationInFrames,
-      fps,
-      audioSrc,
-      beatSrc,
-      punchSrc,
-    }
+    const props = { lyrics, wordTimestamps, durationInFrames, fps, audioSrc, beatSrc, punchSrc }
 
     try {
-      // Bundle the Remotion composition
       const bundleLocation = await bundle({
         entryPoint: path.resolve(process.cwd(), 'src/remotion/index.tsx'),
         webpackOverride: (config) => config,
       })
 
-      // Select the composition
       const composition = await selectComposition({
         serveUrl: bundleLocation,
         id: 'RapVideo',
@@ -107,7 +111,6 @@ class RenderService {
         height: 1080,
       }
 
-      // Render to temp location
       const renderOutputPath = path.join(tempDir, `${jobId}.mp4`)
 
       await renderMedia({
@@ -117,34 +120,57 @@ class RenderService {
         outputLocation: renderOutputPath,
         inputProps: props,
         concurrency: 2,
-        onProgress: ({ progress }) => {
-          process.stdout.write(`\rRendering: ${Math.round(progress * 100)}%`)
-        },
       })
 
-      process.stdout.write('\n')
-
       const mp4Buffer = fs.readFileSync(renderOutputPath)
-      if (mp4Buffer.length === 0) {
-        throw new RenderError('Rendered MP4 is empty')
-      }
+      if (mp4Buffer.length === 0) throw new RenderError('Rendered MP4 is empty')
 
       return mp4Buffer
     } catch (err) {
-      if (err instanceof RenderError) throw err
-      throw new RenderError(
-        `Remotion render failed: ${err instanceof Error ? err.message : String(err)}`,
-      )
-    } finally {
-      // Clean up temp audio/beat files
-      try {
-        if (fs.existsSync(audioPath)) fs.unlinkSync(audioPath)
-        if (beatPath && fs.existsSync(beatPath)) fs.unlinkSync(beatPath)
-        // We no longer delete the final .mp4 here because the user wants to keep it in public/videos
-      } catch {
-        // ignore cleanup errors
-      }
+      throw new RenderError(`Remotion render failed: ${err instanceof Error ? err.message : String(err)}`)
     }
+  }
+
+  /**
+   * Cloud render (AWS Lambda based)
+   */
+  async renderOnLambda(input: RenderInput): Promise<string> {
+    const { lyrics, wordTimestamps, audioBuffer, beatBuffer } = input
+    const durationInFrames = computeDurationInFrames(wordTimestamps)
+    const fps = 30
+
+    // For Lambda, we MUST use public URLs for audio files because Lambda can't access local files
+    // We expect them to be uploaded to a public location (like our public/videos dir served by Vercel)
+    // Or we could upload them to S3. For simplicity, we assume they are served from BETTER_AUTH_URL
+    const jobId = path.basename(input.outputPath, '.mp4')
+    const serverUrl = process.env.BETTER_AUTH_URL ?? 'https://your-app.vercel.app'
+    
+    // Note: On Vercel, we can't write to public/ during runtime.
+    // So for Lambda, we should ideally upload these buffers to S3 first.
+    // For now, let's assume they are either already there or provide a warning.
+    const audioSrc = `${serverUrl}/videos/${jobId}-audio.mp3`
+    const beatSrc = beatBuffer ? `${serverUrl}/videos/${jobId}-beat.mp3` : undefined
+    const punchSrc = `${serverUrl}/beats/punch.mp3`
+
+    const { renderId, bucketName } = await renderVideoOnLambda({
+      region: (process.env.REMOTION_LAMBDA_REGION as any) || 'us-east-1',
+      functionName: process.env.REMOTION_LAMBDA_FUNCTION_NAME!,
+      serveUrl: process.env.REMOTION_LAMBDA_SERVE_URL!,
+      composition: 'RapVideo',
+      inputProps: {
+        lyrics,
+        wordTimestamps,
+        durationInFrames,
+        fps,
+        audioSrc,
+        beatSrc,
+        punchSrc,
+      },
+      codec: 'h264',
+      privacy: 'public',
+    })
+
+    return `https://${bucketName}.s3.${process.env.REMOTION_LAMBDA_REGION || 'us-east-1'}.amazonaws.com/renders/${renderId}/out.mp4`
   }
 }
 

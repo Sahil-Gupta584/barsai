@@ -1,10 +1,11 @@
 import { addTodo, listTodos } from './todos'
-import { rapGenerate } from './rap'
+import { rapGenerate, rapPreview } from './rap'
 
 export default {
   listTodos,
   addTodo,
   rap: {
     generate: rapGenerate,
+    preview: rapPreview,
   },
 }

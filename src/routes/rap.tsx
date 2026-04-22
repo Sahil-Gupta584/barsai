@@ -3,15 +3,17 @@ import { useMutation } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
 import { orpc } from '#/orpc/client'
 import { SignInPrompt } from '#/components/SignInPrompt'
-import { VideoPlayer } from '#/components/VideoPlayer'
 import { checkFreeTier, markFreeTierUsed } from '#/lib/free-tier'
 import { authClient } from '#/lib/auth-client'
+import { Player } from '@remotion/player'
+import { RapVideoComposition } from '#/remotion/RapVideoComposition'
+import { Download, Play, RotateCcw, Share2, Sparkles, Video } from 'lucide-react'
 
 export const Route = createFileRoute('/rap')({
   component: RapGeneratorPage,
 })
 
-type Status = 'idle' | 'generating' | 'done' | 'error' | 'blocked'
+type Status = 'idle' | 'generating' | 'previewing' | 'rendering' | 'done' | 'error' | 'blocked'
 
 const ERROR_MESSAGES: Record<string, string> = {
   LYRICS_PARSE_ERROR: "Couldn't generate lyrics for that topic — try rephrasing.",
@@ -23,12 +25,13 @@ const ERROR_MESSAGES: Record<string, string> = {
 const STAGES = [
   { label: 'WRITING BARS', sub: 'AI is cooking...' },
   { label: 'VOICING IT', sub: 'ElevenLabs spitting...' },
-  { label: 'RENDERING', sub: 'Captions going hard...' },
+  { label: 'POLISHING', sub: 'Adding fire effects...' },
 ]
 
 function RapGeneratorPage() {
   const [topic, setTopic] = useState('')
   const [status, setStatus] = useState<Status>('idle')
+  const [previewData, setPreviewData] = useState<any>(null)
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [stageIndex, setStageIndex] = useState(0)
@@ -47,25 +50,39 @@ function RapGeneratorPage() {
 
   // Cycle through stages while generating
   useEffect(() => {
-    if (status !== 'generating') { setStageIndex(0); return }
+    if (status !== 'generating' && status !== 'rendering') { setStageIndex(0); return }
     const timers = [
       setTimeout(() => setStageIndex(0), 0),
-      setTimeout(() => setStageIndex(1), 8000),
-      setTimeout(() => setStageIndex(2), 20000),
+      setTimeout(() => setStageIndex(1), 5000),
+      setTimeout(() => setStageIndex(2), 12000),
     ]
     return () => timers.forEach(clearTimeout)
   }, [status])
 
-  const mutation = useMutation({
+  // Mutation 1: Quick Preview (Instant)
+  const previewMutation = useMutation({
+    mutationFn: (t: string) => orpc.rap.preview.call({ topic: t }),
+    onSuccess: (data) => {
+      setPreviewData(data)
+      setStatus('previewing')
+    },
+    onError: (err: Error) => {
+      const code = (err as { code?: string }).code ?? 'DEFAULT'
+      setError(ERROR_MESSAGES[code] ?? ERROR_MESSAGES.DEFAULT)
+      setStatus('error')
+    },
+  })
+
+  // Mutation 2: Full Render (MP4)
+  const renderMutation = useMutation({
     mutationFn: (t: string) => orpc.rap.generate.call({ topic: t }),
     onSuccess: (data) => {
       if (!isAuthenticated) markFreeTierUsed()
       setVideoUrl(data.videoUrl)
       setStatus('done')
     },
-    onError: (err: Error) => {
-      const code = (err as { code?: string }).code ?? 'DEFAULT'
-      setError(ERROR_MESSAGES[code] ?? ERROR_MESSAGES.DEFAULT)
+    onError: () => {
+      setError(ERROR_MESSAGES.RENDER_FAILED)
       setStatus('error')
     },
   })
@@ -78,13 +95,19 @@ function RapGeneratorPage() {
     if (!allowed && requiresAuth) { setStatus('blocked'); return }
     setStatus('generating')
     setError(null)
-    setVideoUrl(null)
-    mutation.mutate(trimmed)
+    setPreviewData(null)
+    previewMutation.mutate(trimmed)
+  }
+
+  const handleStartRender = () => {
+    setStatus('rendering')
+    renderMutation.mutate(topic)
   }
 
   const handleReset = () => {
     setStatus('idle')
     setVideoUrl(null)
+    setPreviewData(null)
     setError(null)
     setTopic('')
   }
@@ -95,6 +118,7 @@ function RapGeneratorPage() {
         @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap');
         .font-display { font-family: 'Bebas Neue', sans-serif; }
         .font-mono-custom { font-family: 'Space Mono', monospace; }
+        
         .input-bar {
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(250,204,21,0.3);
@@ -107,15 +131,31 @@ function RapGeneratorPage() {
           box-shadow: 0 0 0 2px rgba(250,204,21,0.15);
         }
         .input-bar::placeholder { color: rgba(255,255,255,0.25); }
+        
         .cta-btn {
           background: #facc15; color: #000;
           font-family: 'Bebas Neue', sans-serif;
           letter-spacing: 0.1em;
-          transition: transform 0.15s, box-shadow 0.15s;
+          transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
         }
-        .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(250,204,21,0.4); }
+        .cta-btn:hover { 
+          transform: translateY(-2px); 
+          box-shadow: 0 8px 30px rgba(250,204,21,0.4); 
+          background: #fde047;
+        }
         .cta-btn:active { transform: scale(0.97); }
         .cta-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .secondary-btn {
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          color: white;
+          font-family: 'Bebas Neue', sans-serif;
+          letter-spacing: 0.1em;
+          transition: all 0.2s;
+        }
+        .secondary-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+
         .grid-bg {
           background-image:
             linear-gradient(rgba(250,204,21,0.03) 1px, transparent 1px),
@@ -145,34 +185,100 @@ function RapGeneratorPage() {
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-16">
 
         {/* Header */}
-        <div className="text-center mb-12">
-          <p className="text-yellow-400/50 text-xs tracking-[0.3em] font-mono-custom mb-3">BARS.AI</p>
-          <h1 className="font-display text-7xl md:text-9xl tracking-wider leading-none">
-            <span className="text-white">DROP A </span>
-            <span className="text-yellow-400">TOPIC</span>
-          </h1>
-          <p className="mt-4 text-white/30 text-sm font-mono-custom tracking-widest">
-            WE WRITE THE BARS. VOICE THEM. RENDER THE VIDEO.
-          </p>
-        </div>
+        {(status === 'idle' || status === 'error' ) && (
+          <div className="text-center mb-12">
+            <p className="text-yellow-400/50 text-xs tracking-[0.3em] font-mono-custom mb-3">BARS.AI</p>
+            <h1 className="font-display text-7xl md:text-9xl tracking-wider leading-none">
+              <span className="text-white">DROP A </span>
+              <span className="text-yellow-400">TOPIC</span>
+            </h1>
+            <p className="mt-4 text-white/30 text-sm font-mono-custom tracking-widest">
+              WE WRITE THE BARS. VOICE THEM. YOU WATCH 'EM LIVE.
+            </p>
+          </div>
+        )}
 
         {/* Main content */}
-        <div className="w-full max-w-xl">
+        <div className="w-full max-w-2xl">
 
           {/* Blocked */}
           {status === 'blocked' && <SignInPrompt topic={topic} />}
 
-          {/* Done */}
+          {/* Previewing (Client-Side Player) */}
+          {status === 'previewing' && previewData && (
+             <div className="flex flex-col gap-8 w-full">
+                <div className="rounded-lg overflow-hidden border-4 border-yellow-400 shadow-2xl shadow-yellow-400/10">
+                   <Player
+                      component={RapVideoComposition}
+                      inputProps={{
+                        lyrics: previewData.lyrics,
+                        wordTimestamps: previewData.wordTimestamps,
+                        audioSrc: previewData.audioUrl,
+                        beatSrc: previewData.beatUrl,
+                        punchSrc: previewData.punchUrl,
+                        fps: 30,
+                      }}
+                      durationInFrames={30 * 45} // Approx 45s, should ideally be computed
+                      fps={30}
+                      compositionWidth={1080}
+                      compositionHeight={1080}
+                      style={{ width: '100%', aspectRatio: '1' }}
+                      controls
+                      autoPlay
+                   />
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                   <button
+                      onClick={handleStartRender}
+                      className="cta-btn flex-1 py-4 text-xl rounded-sm flex items-center justify-center gap-2"
+                   >
+                     <Video size={20} />
+                     FINALIZE & DOWNLOAD MP4
+                   </button>
+                   <button
+                      onClick={handleReset}
+                      className="secondary-btn px-6 py-4 rounded-sm flex items-center justify-center gap-2"
+                   >
+                     <RotateCcw size={18} />
+                     RETRY
+                   </button>
+                </div>
+                <p className="text-white/20 text-[10px] text-center font-mono-custom tracking-[0.2em]">
+                   PREVIEW VERSION · WATERMARK REMOVED ON DOWNLOAD
+                </p>
+             </div>
+          )}
+
+          {/* Done (Server-Side Rendered Video with Download) */}
           {status === 'done' && videoUrl && (
-            <div className="flex flex-col gap-6">
-              <VideoPlayer src={videoUrl} topic={topic} />
-              <button
-                type="button"
-                onClick={handleReset}
-                className="font-mono-custom text-yellow-400/50 hover:text-yellow-400 text-xs text-center tracking-widest transition-colors"
-              >
-                ← DROP ANOTHER TOPIC
-              </button>
+            <div className="flex flex-col gap-8 w-full">
+              <div className="rounded-lg overflow-hidden border-4 border-white/20">
+                <video 
+                  src={videoUrl} 
+                  controls 
+                  autoPlay 
+                  className="w-full aspect-square bg-zinc-900"
+                />
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a
+                  href={videoUrl}
+                  download={`rap-${topic.slice(0, 10)}.mp4`}
+                  className="cta-btn flex-1 py-4 text-xl rounded-sm flex items-center justify-center gap-2 text-center decoration-none"
+                >
+                  <Download size={20} />
+                  DOWNLOAD MP4
+                </a>
+                <button
+                  onClick={handleReset}
+                  className="secondary-btn px-6 py-4 rounded-sm flex items-center justify-center gap-2"
+                >
+                  <RotateCcw size={18} />
+                  GO AGAIN
+                </button>
+              </div>
             </div>
           )}
 
@@ -205,10 +311,17 @@ function RapGeneratorPage() {
 
               <button
                 type="submit"
-                disabled={topic.trim().length < 3}
-                className="cta-btn w-full py-4 text-2xl rounded-sm"
+                disabled={topic.trim().length < 3 || previewMutation.isPending}
+                className="cta-btn w-full py-4 text-2xl rounded-sm flex items-center justify-center gap-2"
               >
-                GENERATE RAP →
+                {previewMutation.isPending ? (
+                   <span className="flex items-center gap-2">
+                      <Sparkles className="animate-spin" size={20} />
+                      COOKING...
+                   </span>
+                ) : (
+                   "GENERATE VERSE →"
+                )}
               </button>
 
               {!isAuthenticated && (
@@ -219,34 +332,35 @@ function RapGeneratorPage() {
             </form>
           )}
 
-          {/* Generating */}
-          {status === 'generating' && (
+          {/* Generating Metadata / Rendering Video */}
+          {(status === 'generating' || status === 'rendering') && (
             <div className="flex flex-col items-center gap-8 py-8">
-              {/* Audio bars */}
-              <div className="flex items-end gap-1 h-16">
-                {Array(20).fill(null).map((_, i) => (
+              {/* Audio bars animations */}
+              <div className="flex items-end gap-1 h-32">
+                {Array(24).fill(null).map((_, i) => (
                   <div
-                    // biome-ignore lint/suspicious/noArrayIndexKey: static
                     key={i}
-                    className="w-2 bg-yellow-400 rounded-t-sm"
+                    className="w-2 md:w-3 bg-yellow-400 rounded-t-sm"
                     style={{
-                      height: `${25 + Math.sin(i * 0.9) * 20}px`,
-                      animation: `barBounce ${0.4 + (i % 5) * 0.1}s ease-in-out ${i * 0.05}s infinite alternate`,
+                      height: `${20 + Math.random() * 80}%`,
+                      animation: `barBounce ${0.2 + (i % 8) * 0.05}s ease-in-out ${i * 0.02}s infinite alternate`,
                     }}
                   />
                 ))}
               </div>
               <div className="text-center">
-                <p className="font-display text-3xl tracking-widest text-yellow-400">
-                  {STAGES[stageIndex].label}
+                <p className="font-display text-4xl md:text-6xl tracking-widest text-yellow-400">
+                  {status === 'generating' ? 'COOKING PREVIEW...' : 'RENDERING MP4...'}
                 </p>
-                <p className="text-white/30 text-xs font-mono-custom mt-2 tracking-widest">
-                  {STAGES[stageIndex].sub}
+                <p className="text-white/30 text-xs font-mono-custom mt-4 tracking-widest uppercase">
+                   {status === 'generating' ? 'Writing bars & voicing them' : 'Exporting high-quality video file'}
                 </p>
               </div>
-              <p className="text-white/20 text-xs font-mono-custom tracking-widest">
-                THIS TAKES ~30–60 SECONDS
-              </p>
+              {status === 'rendering' && (
+                 <p className="text-white/20 text-[10px] font-mono-custom tracking-[0.3em] bg-white/5 px-4 py-2 rounded-full">
+                    ETA: ~30-45 SECONDS
+                 </p>
+              )}
             </div>
           )}
         </div>
