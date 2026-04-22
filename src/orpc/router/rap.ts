@@ -96,20 +96,20 @@ export const rapPreview = os
 
     try {
       // 1. Generate Lyrics
-      // const lyrics = await getLyricsService().generateLyrics(input.topic)
-      const lyrics = testingLyrics
+      const lyrics = await getLyricsService().generateLyrics(input.topic)
+      // const lyrics = testingLyrics
       // console.log('lyrics', JSON.stringify(lyrics));
 
       if (!lyrics) throw new ORPCError('INTERNAL_SERVER_ERROR', { message: 'LYRICS_PARSE_ERROR' })
 
       // 2. Generate Audio
-      // const { audioBuffer, wordTimestamps } = await getAudioService().synthesize(lyrics.fullText)
-      const { audioBuffer, wordTimestamps } = {
-        audioBuffer: fs.readFileSync(`./public/videos/${'f78452f8-b51a-4e68-87e3-d63d6e645d09'}.mp3`),
-        wordTimestamps: testingAudioResult
-      }
+      const { audioBuffer, wordTimestamps } = await getAudioService().synthesize(lyrics.fullText)
+      // const { audioBuffer, wordTimestamps } = {
+      //   audioBuffer: fs.readFileSync(`./public/videos/${'f78452f8-b51a-4e68-87e3-d63d6e645d09'}.mp3`),
+      //   wordTimestamps: testingAudioResult
+      // }
 
-      console.log('wordTimestamps', JSON.stringify(wordTimestamps));
+      // console.log('wordTimestamps', JSON.stringify(wordTimestamps));
 
       // fs.writeFileSync(`./public/videos/${jobId}.mp3`, audioBuffer)
 
