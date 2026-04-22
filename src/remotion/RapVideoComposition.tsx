@@ -62,7 +62,7 @@ function clean(word: string) {
 function getAllWords(
   lyrics: LyricsDocument,
   wordTimestamps: WordTimestamp[],
-): { 
+): {
   displayWords: Array<{ word: string; timestamp: WordTimestamp; lineIndex: number }>;
   punchlineTimes: number[];
 } {
@@ -485,7 +485,7 @@ export function RapVideoComposition({
       </div>
 
       {/* Debug overlay - shows timing info */}
-      <div
+      {/* <div
         style={{
           position: 'absolute',
           top: 20,
@@ -516,7 +516,7 @@ export function RapVideoComposition({
             </>
           )
         })()}
-      </div>
+      </div> */}
       {currentLine && (
         <>
           <div style={{ position: 'absolute', top: 150, left: 20, fontFamily: robotoMono, fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>
