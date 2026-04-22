@@ -121,8 +121,8 @@ class RenderService {
       throw new RenderError(`Remotion render failed: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
-  }
 }
+
 
 let _instance: RenderService | null = null
 
