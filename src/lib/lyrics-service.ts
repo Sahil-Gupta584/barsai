@@ -79,8 +79,6 @@ function tokenize(line: string): string[] {
     .trim()
     .split(/\s+/)
     .filter((w) => w.length > 0)
-    // Filter out emotion tags from the words array
-    .filter((w) => !/^\[(sad|angry|happily|excited|calm|serious|whispers|shouts|slow|fast|laughs|sighs|gasp|emphasis|dramatic|sorrowful|clears throat|silence|long_pause|break|BOOM)\]$/i.test(w))
 }
 
 export function parseLyricsFromGemini(

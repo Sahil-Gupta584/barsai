@@ -11,6 +11,8 @@ import { getRenderService } from '#/lib/render-service'
 import { auth } from '#/lib/auth'
 import { db } from '#/db'
 import { rapJobs } from '#/db/schema'
+import { testingAudioResult, testingLyrics } from '#/lib/utils'
+import { env } from '#/env'
 
 export const rapGenerate = os
   .input(RapGenerateInputSchema)
@@ -83,27 +85,38 @@ export const rapPreview = os
     const userId = session?.user.id
 
     // Check limits if logged in
-    if (userId) {
-      const [stats] = await db.select({ value: count() }).from(rapJobs).where(eq(rapJobs.userId, userId))
-      if (stats.value >= 2) {
-        throw new ORPCError('FORBIDDEN', { message: 'You have reached your limit of 2 raps.' })
-      }
-    }
+    // if (userId) {
+    //   const [stats] = await db.select({ value: count() }).from(rapJobs).where(eq(rapJobs.userId, userId))
+    //   if (stats.value >= 2) {
+    //     throw new ORPCError('FORBIDDEN', { message: 'You have reached your limit of 2 raps.' })
+    //   }
+    // }
 
     const jobId = uuid()
 
     try {
       // 1. Generate Lyrics
-      const lyrics = await getLyricsService().generateLyrics(input.topic)
+      // const lyrics = await getLyricsService().generateLyrics(input.topic)
+      const lyrics = testingLyrics
+      // console.log('lyrics', JSON.stringify(lyrics));
+
       if (!lyrics) throw new ORPCError('INTERNAL_SERVER_ERROR', { message: 'LYRICS_PARSE_ERROR' })
 
       // 2. Generate Audio
-      const { audioBuffer, wordTimestamps } = await getAudioService().synthesize(lyrics.fullText)
+      // const { audioBuffer, wordTimestamps } = await getAudioService().synthesize(lyrics.fullText)
+      const { audioBuffer, wordTimestamps } = {
+        audioBuffer: fs.readFileSync(`./public/videos/${'f78452f8-b51a-4e68-87e3-d63d6e645d09'}.mp3`),
+        wordTimestamps: testingAudioResult
+      }
+
+      console.log('wordTimestamps', JSON.stringify(wordTimestamps));
+
+      // fs.writeFileSync(`./public/videos/${jobId}.mp3`, audioBuffer)
 
       // Use Data URL for Vercel compatibility instead of local file writing
       const audioUrl = `data:audio/mp3;base64,${audioBuffer.toString('base64')}`
-      
-      const serverUrl = process.env.BETTER_AUTH_URL ?? 'http://localhost:3000'
+
+      const serverUrl = env.BETTER_AUTH_URL ?? 'http://localhost:3000'
       const beatUrl = `${serverUrl}/beats/hook.mp3`
       const punchUrl = `${serverUrl}/beats/punch.mp3`
 

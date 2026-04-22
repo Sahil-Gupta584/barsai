@@ -1,118 +1,866 @@
 {
-  "name": "rippy",
-  "private": true,
-  "type": "module",
-  "imports": {
-    "#/*": "./src/*"
-  },
-  "scripts": {
-    "dev": "dotenv -e .env.local -- sh -c \"NODE_OPTIONS='--import ./instrument.server.mjs' vite dev --port 3000\"",
-    "build": "vite build ",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "format": "biome format",
-    "lint": "biome lint",
-    "check": "biome check",
-    "start": "node --import ./.output/server/instrument.server.mjs .output/server/index.mjs",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:pull": "drizzle-kit pull",
-    "db:studio": "drizzle-kit studio"
-  },
-  "overrides": {
-    "remotion": "4.0.450",
-    "@remotion/bundler": "4.0.450",
-    "@remotion/google-fonts": "4.0.450",
-    "@remotion/media": "4.0.450",
-    "@remotion/player": "4.0.450",
-    "@remotion/renderer": "4.0.450",
-    "@remotion/web-renderer": "4.0.450",
-    "@remotion/lambda": "4.0.450",
-    "@remotion/studio": "4.0.450",
-    "@remotion/studio-shared": "4.0.450",
-    "@remotion/media-utils": "4.0.450",
-    "@remotion/zod-types": "4.0.450",
-    "@remotion/shapes": "4.0.450",
-    "@remotion/skia": "4.0.450",
-    "@remotion/gif": "4.0.450",
-    "@remotion/lottie": "4.0.450"
-  },
-  "dependencies": {
-    "@orpc/client": "^1.13.6",
-    "@orpc/json-schema": "^1.13.6",
-    "@orpc/openapi": "^1.13.6",
-    "@orpc/server": "^1.13.6",
-    "@orpc/tanstack-query": "^1.13.6",
-    "@orpc/zod": "^1.13.6",
-    "@remotion/bundler": "4.0.450",
-    "@remotion/google-fonts": "4.0.450",
-    "@remotion/media": "4.0.450",
-    "@remotion/player": "4.0.450",
-    "@remotion/renderer": "4.0.450",
-    "@remotion/web-renderer": "4.0.450",
-    "remotion": "4.0.450",
-    "@sentry/tanstackstart-react": "^10.42.0",
-    "@t3-oss/env-core": "^0.13.10",
-    "@tailwindcss/vite": "^4.1.18",
-    "@tanstack/ai": "latest",
-    "@tanstack/ai-anthropic": "latest",
-    "@tanstack/ai-client": "latest",
-    "@tanstack/ai-gemini": "latest",
-    "@tanstack/ai-ollama": "latest",
-    "@tanstack/ai-openai": "latest",
-    "@tanstack/ai-react": "latest",
-    "@tanstack/nitro-v2-vite-plugin": "^1.154.9",
-    "@tanstack/react-devtools": "latest",
-    "@tanstack/react-query": "latest",
-    "@tanstack/react-query-devtools": "latest",
-    "@tanstack/react-router": "latest",
-    "@tanstack/react-router-devtools": "latest",
-    "@tanstack/react-router-ssr-query": "latest",
-    "@tanstack/react-start": "latest",
-    "@tanstack/router-plugin": "^1.132.0",
-    "@tanstack/store": "latest",
-    "better-auth": "^1.5.3",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "dotenv-cli": "^11.0.0",
-    "drizzle-kit": "^0.31.9",
-    "drizzle-orm": "^0.45.1",
-    "elevenlabs": "^1.59.0",
-    "lucide-react": "^0.545.0",
-    "marked": "^15.0.8",
-    "pg": "^8.16.3",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "resend": "^6.12.0",
-    "streamdown": "^2.3.0",
-    "tailwind-merge": "^3.0.2",
-    "tailwindcss": "^4.1.18",
-    "tailwindcss-animate": "^1.0.7",
-    "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.4.5",
-    "@tailwindcss/typography": "^0.5.16",
-    "@tanstack/devtools-vite": "latest",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/react": "^16.3.0",
-    "@types/node": "^22.10.2",
-    "@types/pg": "^8.15.6",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0",
-    "@vitejs/plugin-react": "^6.0.1",
-    "dotenv": "^17.3.1",
-    "jsdom": "^28.1.0",
-    "tsx": "^4.21.0",
-    "typescript": "^5.7.2",
-    "vite": "^8.0.0",
-    "vitest": "^3.0.5"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "lightningcss"
-    ]
-  }
+  "topic": "elon musk",
+  "sections": [
+    {
+      "type": "hook",
+      "lines": [
+        {
+          "text": "[excited] Captain of rockets, king of the screen",
+          "words": [
+            "Captain",
+            "of",
+            "rockets,",
+            "king",
+            "of",
+            "the",
+            "screen"
+          ]
+        },
+        {
+          "text": "The richest mid-life crisis we’ve ever seen",
+          "words": [
+            "The",
+            "richest",
+            "mid-life",
+            "crisis",
+            "we’ve",
+            "ever",
+            "seen"
+          ]
+        },
+        {
+          "text": "Changing the world with a meme and a tweet [dramatic]",
+          "words": [
+            "Changing",
+            "the",
+            "world",
+            "with",
+            "a",
+            "meme",
+            "and",
+            "a",
+            "tweet"
+          ]
+        },
+        {
+          "text": "But you can’t buy the love that you’re dying to meet [BOOM]",
+          "words": [
+            "But",
+            "you",
+            "can’t",
+            "buy",
+            "the",
+            "love",
+            "that",
+            "you’re",
+            "dying",
+            "to",
+            "meet"
+          ]
+        }
+      ],
+      "stylePreset": {
+        "id": "hook",
+        "fontFamily": "'Bebas Neue', Impact, sans-serif",
+        "color": "#facc15",
+        "accentColor": "#facc15",
+        "animation": "pop",
+        "fontSize": 96,
+        "textTransform": "uppercase"
+      }
+    },
+    {
+      "type": "verse",
+      "lines": [
+        {
+          "text": "[fast] You sent a car to orbit, a billionaire’s flex",
+          "words": [
+            "You",
+            "sent",
+            "a",
+            "car",
+            "to",
+            "orbit,",
+            "a",
+            "billionaire’s",
+            "flex"
+          ]
+        },
+        {
+          "text": "While the rest of us struggle just paying our checks",
+          "words": [
+            "While",
+            "the",
+            "rest",
+            "of",
+            "us",
+            "struggle",
+            "just",
+            "paying",
+            "our",
+            "checks"
+          ]
+        },
+        {
+          "text": "Buying up Twitter to own all the libs [angry]",
+          "words": [
+            "Buying",
+            "up",
+            "Twitter",
+            "to",
+            "own",
+            "all",
+            "the",
+            "libs"
+          ]
+        },
+        {
+          "text": "But you’re acting like toddlers in oversized bibs",
+          "words": [
+            "But",
+            "you’re",
+            "acting",
+            "like",
+            "toddlers",
+            "in",
+            "oversized",
+            "bibs"
+          ]
+        },
+        {
+          "text": "You’re changing the future, the vision is vast [serious]",
+          "words": [
+            "You’re",
+            "changing",
+            "the",
+            "future,",
+            "the",
+            "vision",
+            "is",
+            "vast"
+          ]
+        },
+        {
+          "text": "But your hairline is stuck in a century past",
+          "words": [
+            "But",
+            "your",
+            "hairline",
+            "is",
+            "stuck",
+            "in",
+            "a",
+            "century",
+            "past"
+          ]
+        },
+        {
+          "text": "You’re the Tony Stark that the bargain bin sold [laughs]",
+          "words": [
+            "You’re",
+            "the",
+            "Tony",
+            "Stark",
+            "that",
+            "the",
+            "bargain",
+            "bin",
+            "sold"
+          ]
+        },
+        {
+          "text": "Just a lonely tech-bro getting bitter and old [BOOM]",
+          "words": [
+            "Just",
+            "a",
+            "lonely",
+            "tech-bro",
+            "getting",
+            "bitter",
+            "and",
+            "old"
+          ]
+        }
+      ],
+      "stylePreset": {
+        "id": "verse",
+        "fontFamily": "'Bebas Neue', Impact, sans-serif",
+        "color": "#ffffff",
+        "accentColor": "#facc15",
+        "animation": "slide",
+        "fontSize": 80,
+        "textTransform": "uppercase"
+      }
+    }
+  ],
+  "fullText": "[excited] Captain of rockets, king of the screen The richest mid-life crisis we’ve ever seen Changing the world with a meme and a tweet [dramatic] But you can’t buy the love that you’re dying to meet [BOOM] [fast] You sent a car to orbit, a billionaire’s flex While the rest of us struggle just paying our checks Buying up Twitter to own all the libs [angry] But you’re acting like toddlers in oversized bibs You’re changing the future, the vision is vast [serious] But your hairline is stuck in a century past You’re the Tony Stark that the bargain bin sold [laughs] Just a lonely tech-bro getting bitter and old [BOOM]"
 }
+
+[
+  {
+    "word": "[excited]",
+    "startTime": 0,
+    "endTime": 0.081,
+    "confidence": 1
+  },
+  {
+    "word": "Captain",
+    "startTime": 0.121,
+    "endTime": 0.401,
+    "confidence": 1
+  },
+  {
+    "word": "of",
+    "startTime": 0.454,
+    "endTime": 0.56,
+    "confidence": 1
+  },
+  {
+    "word": "rockets,",
+    "startTime": 0.63,
+    "endTime": 1.28,
+    "confidence": 1
+  },
+  {
+    "word": "king",
+    "startTime": 1.328,
+    "endTime": 1.52,
+    "confidence": 1
+  },
+  {
+    "word": "of",
+    "startTime": 1.547,
+    "endTime": 1.601,
+    "confidence": 1
+  },
+  {
+    "word": "the",
+    "startTime": 1.621,
+    "endTime": 1.681,
+    "confidence": 1
+  },
+  {
+    "word": "screen",
+    "startTime": 1.761,
+    "endTime": 2.241,
+    "confidence": 1
+  },
+  {
+    "word": "The",
+    "startTime": 2.401,
+    "endTime": 2.881,
+    "confidence": 1
+  },
+  {
+    "word": "richest",
+    "startTime": 2.951,
+    "endTime": 3.441,
+    "confidence": 1
+  },
+  {
+    "word": "mid-life",
+    "startTime": 3.501,
+    "endTime": 3.921,
+    "confidence": 1
+  },
+  {
+    "word": "crisis",
+    "startTime": 3.99,
+    "endTime": 4.404,
+    "confidence": 1
+  },
+  {
+    "word": "we’ve",
+    "startTime": 4.484,
+    "endTime": 4.725,
+    "confidence": 1
+  },
+  {
+    "word": "ever",
+    "startTime": 4.757,
+    "endTime": 4.885,
+    "confidence": 1
+  },
+  {
+    "word": "seen",
+    "startTime": 5.061,
+    "endTime": 5.765,
+    "confidence": 1
+  },
+  {
+    "word": "Changing",
+    "startTime": 5.854,
+    "endTime": 6.566,
+    "confidence": 1
+  },
+  {
+    "word": "the",
+    "startTime": 6.586,
+    "endTime": 6.646,
+    "confidence": 1
+  },
+  {
+    "word": "world",
+    "startTime": 6.713,
+    "endTime": 7.048,
+    "confidence": 1
+  },
+  {
+    "word": "with",
+    "startTime": 7.096,
+    "endTime": 7.288,
+    "confidence": 1
+  },
+  {
+    "word": "a",
+    "startTime": 7.328,
+    "endTime": 7.368,
+    "confidence": 1
+  },
+  {
+    "word": "meme",
+    "startTime": 7.448,
+    "endTime": 7.768,
+    "confidence": 1
+  },
+  {
+    "word": "and",
+    "startTime": 7.848,
+    "endTime": 8.088,
+    "confidence": 1
+  },
+  {
+    "word": "a",
+    "startTime": 8.168,
+    "endTime": 8.248,
+    "confidence": 1
+  },
+  {
+    "word": "tweet",
+    "startTime": 8.395,
+    "endTime": 9.13,
+    "confidence": 1
+  },
+  {
+    "word": "[dramatic]",
+    "startTime": 9.25,
+    "endTime": 9.433,
+    "confidence": 1
+  },
+  {
+    "word": "But",
+    "startTime": 9.437,
+    "endTime": 9.449,
+    "confidence": 1
+  },
+  {
+    "word": "you",
+    "startTime": 9.489,
+    "endTime": 9.609,
+    "confidence": 1
+  },
+  {
+    "word": "can’t",
+    "startTime": 9.689,
+    "endTime": 10.009,
+    "confidence": 1
+  },
+  {
+    "word": "buy",
+    "startTime": 10.069,
+    "endTime": 10.249,
+    "confidence": 1
+  },
+  {
+    "word": "the",
+    "startTime": 10.269,
+    "endTime": 10.329,
+    "confidence": 1
+  },
+  {
+    "word": "love",
+    "startTime": 10.425,
+    "endTime": 10.809,
+    "confidence": 1
+  },
+  {
+    "word": "that",
+    "startTime": 10.873,
+    "endTime": 11.129,
+    "confidence": 1
+  },
+  {
+    "word": "you’re",
+    "startTime": 11.149,
+    "endTime": 11.29,
+    "confidence": 1
+  },
+  {
+    "word": "dying",
+    "startTime": 11.383,
+    "endTime": 11.848,
+    "confidence": 1
+  },
+  {
+    "word": "to",
+    "startTime": 11.875,
+    "endTime": 11.929,
+    "confidence": 1
+  },
+  {
+    "word": "meet",
+    "startTime": 12.009,
+    "endTime": 12.329,
+    "confidence": 1
+  },
+  {
+    "word": "[BOOM]",
+    "startTime": 12.369,
+    "endTime": 12.457,
+    "confidence": 1
+  },
+  {
+    "word": "[fast]",
+    "startTime": 12.465,
+    "endTime": 13.049,
+    "confidence": 1
+  },
+  {
+    "word": "You",
+    "startTime": 13.089,
+    "endTime": 13.209,
+    "confidence": 1
+  },
+  {
+    "word": "sent",
+    "startTime": 13.257,
+    "endTime": 13.449,
+    "confidence": 1
+  },
+  {
+    "word": "a",
+    "startTime": 13.489,
+    "endTime": 13.529,
+    "confidence": 1
+  },
+  {
+    "word": "car",
+    "startTime": 13.589,
+    "endTime": 13.769,
+    "confidence": 1
+  },
+  {
+    "word": "to",
+    "startTime": 13.796,
+    "endTime": 13.85,
+    "confidence": 1
+  },
+  {
+    "word": "orbit,",
+    "startTime": 13.917,
+    "endTime": 14.412,
+    "confidence": 1
+  },
+  {
+    "word": "a",
+    "startTime": 14.452,
+    "endTime": 14.492,
+    "confidence": 1
+  },
+  {
+    "word": "billionaire’s",
+    "startTime": 14.539,
+    "endTime": 15.136,
+    "confidence": 1
+  },
+  {
+    "word": "flex",
+    "startTime": 15.232,
+    "endTime": 15.616,
+    "confidence": 1
+  },
+  {
+    "word": "While",
+    "startTime": 15.696,
+    "endTime": 16.096,
+    "confidence": 1
+  },
+  {
+    "word": "the",
+    "startTime": 16.136,
+    "endTime": 16.256,
+    "confidence": 1
+  },
+  {
+    "word": "rest",
+    "startTime": 16.32,
+    "endTime": 16.576,
+    "confidence": 1
+  },
+  {
+    "word": "of",
+    "startTime": 16.603,
+    "endTime": 16.657,
+    "confidence": 1
+  },
+  {
+    "word": "us",
+    "startTime": 16.737,
+    "endTime": 16.897,
+    "confidence": 1
+  },
+  {
+    "word": "struggle",
+    "startTime": 16.941,
+    "endTime": 17.293,
+    "confidence": 1
+  },
+  {
+    "word": "just",
+    "startTime": 17.357,
+    "endTime": 17.613,
+    "confidence": 1
+  },
+  {
+    "word": "paying",
+    "startTime": 17.659,
+    "endTime": 17.935,
+    "confidence": 1
+  },
+  {
+    "word": "our",
+    "startTime": 17.975,
+    "endTime": 18.095,
+    "confidence": 1
+  },
+  {
+    "word": "checks",
+    "startTime": 18.232,
+    "endTime": 19.054,
+    "confidence": 1
+  },
+  {
+    "word": "Buying",
+    "startTime": 19.1,
+    "endTime": 19.376,
+    "confidence": 1
+  },
+  {
+    "word": "up",
+    "startTime": 19.403,
+    "endTime": 19.457,
+    "confidence": 1
+  },
+  {
+    "word": "Twitter",
+    "startTime": 19.517,
+    "endTime": 19.937,
+    "confidence": 1
+  },
+  {
+    "word": "to",
+    "startTime": 19.99,
+    "endTime": 20.096,
+    "confidence": 1
+  },
+  {
+    "word": "own",
+    "startTime": 20.176,
+    "endTime": 20.416,
+    "confidence": 1
+  },
+  {
+    "word": "all",
+    "startTime": 20.436,
+    "endTime": 20.496,
+    "confidence": 1
+  },
+  {
+    "word": "the",
+    "startTime": 20.536,
+    "endTime": 20.656,
+    "confidence": 1
+  },
+  {
+    "word": "libs",
+    "startTime": 20.832,
+    "endTime": 21.536,
+    "confidence": 1
+  },
+  {
+    "word": "[angry]",
+    "startTime": 21.576,
+    "endTime": 21.677,
+    "confidence": 1
+  },
+  {
+    "word": "But",
+    "startTime": 21.682,
+    "endTime": 21.697,
+    "confidence": 1
+  },
+  {
+    "word": "you’re",
+    "startTime": 21.737,
+    "endTime": 21.938,
+    "confidence": 1
+  },
+  {
+    "word": "acting",
+    "startTime": 21.995,
+    "endTime": 22.337,
+    "confidence": 1
+  },
+  {
+    "word": "like",
+    "startTime": 22.385,
+    "endTime": 22.577,
+    "confidence": 1
+  },
+  {
+    "word": "toddlers",
+    "startTime": 22.648,
+    "endTime": 23.216,
+    "confidence": 1
+  },
+  {
+    "word": "in",
+    "startTime": 23.296,
+    "endTime": 23.456,
+    "confidence": 1
+  },
+  {
+    "word": "oversized",
+    "startTime": 23.528,
+    "endTime": 24.176,
+    "confidence": 1
+  },
+  {
+    "word": "bibs",
+    "startTime": 24.276,
+    "endTime": 24.736,
+    "confidence": 1
+  },
+  {
+    "word": "You’re",
+    "startTime": 24.916,
+    "endTime": 25.537,
+    "confidence": 1
+  },
+  {
+    "word": "changing",
+    "startTime": 25.581,
+    "endTime": 25.933,
+    "confidence": 1
+  },
+  {
+    "word": "the",
+    "startTime": 25.973,
+    "endTime": 26.093,
+    "confidence": 1
+  },
+  {
+    "word": "future,",
+    "startTime": 26.162,
+    "endTime": 26.736,
+    "confidence": 1
+  },
+  {
+    "word": "the",
+    "startTime": 26.776,
+    "endTime": 26.896,
+    "confidence": 1
+  },
+  {
+    "word": "vision",
+    "startTime": 26.965,
+    "endTime": 27.379,
+    "confidence": 1
+  },
+  {
+    "word": "is",
+    "startTime": 27.459,
+    "endTime": 27.619,
+    "confidence": 1
+  },
+  {
+    "word": "vast",
+    "startTime": 27.747,
+    "endTime": 28.259,
+    "confidence": 1
+  },
+  {
+    "word": "[serious]",
+    "startTime": 28.279,
+    "endTime": 28.381,
+    "confidence": 1
+  },
+  {
+    "word": "But",
+    "startTime": 28.391,
+    "endTime": 28.421,
+    "confidence": 1
+  },
+  {
+    "word": "your",
+    "startTime": 28.437,
+    "endTime": 28.501,
+    "confidence": 1
+  },
+  {
+    "word": "hairline",
+    "startTime": 28.581,
+    "endTime": 29.221,
+    "confidence": 1
+  },
+  {
+    "word": "is",
+    "startTime": 29.301,
+    "endTime": 29.461,
+    "confidence": 1
+  },
+  {
+    "word": "stuck",
+    "startTime": 29.528,
+    "endTime": 29.863,
+    "confidence": 1
+  },
+  {
+    "word": "in",
+    "startTime": 29.916,
+    "endTime": 30.022,
+    "confidence": 1
+  },
+  {
+    "word": "a",
+    "startTime": 30.102,
+    "endTime": 30.182,
+    "confidence": 1
+  },
+  {
+    "word": "century",
+    "startTime": 30.242,
+    "endTime": 30.662,
+    "confidence": 1
+  },
+  {
+    "word": "past",
+    "startTime": 30.79,
+    "endTime": 31.302,
+    "confidence": 1
+  },
+  {
+    "word": "You’re",
+    "startTime": 31.502,
+    "endTime": 32.261,
+    "confidence": 1
+  },
+  {
+    "word": "the",
+    "startTime": 32.281,
+    "endTime": 32.341,
+    "confidence": 1
+  },
+  {
+    "word": "Tony",
+    "startTime": 32.405,
+    "endTime": 32.661,
+    "confidence": 1
+  },
+  {
+    "word": "Stark",
+    "startTime": 32.741,
+    "endTime": 33.141,
+    "confidence": 1
+  },
+  {
+    "word": "that",
+    "startTime": 33.189,
+    "endTime": 33.381,
+    "confidence": 1
+  },
+  {
+    "word": "the",
+    "startTime": 33.401,
+    "endTime": 33.461,
+    "confidence": 1
+  },
+  {
+    "word": "bargain",
+    "startTime": 33.531,
+    "endTime": 34.021,
+    "confidence": 1
+  },
+  {
+    "word": "bin",
+    "startTime": 34.101,
+    "endTime": 34.341,
+    "confidence": 1
+  },
+  {
+    "word": "sold",
+    "startTime": 34.421,
+    "endTime": 34.741,
+    "confidence": 1
+  },
+  {
+    "word": "[laughs]",
+    "startTime": 34.981,
+    "endTime": 35.379,
+    "confidence": 1
+  },
+  {
+    "word": "Just",
+    "startTime": 35.395,
+    "endTime": 35.459,
+    "confidence": 1
+  },
+  {
+    "word": "a",
+    "startTime": 35.499,
+    "endTime": 35.539,
+    "confidence": 1
+  },
+  {
+    "word": "lonely",
+    "startTime": 35.596,
+    "endTime": 35.938,
+    "confidence": 1
+  },
+  {
+    "word": "tech-bro",
+    "startTime": 36.002,
+    "endTime": 36.578,
+    "confidence": 1
+  },
+  {
+    "word": "getting",
+    "startTime": 36.628,
+    "endTime": 36.978,
+    "confidence": 1
+  },
+  {
+    "word": "bitter",
+    "startTime": 37.069,
+    "endTime": 37.615,
+    "confidence": 1
+  },
+  {
+    "word": "and",
+    "startTime": 37.675,
+    "endTime": 37.855,
+    "confidence": 1
+  },
+  {
+    "word": "old",
+    "startTime": 37.955,
+    "endTime": 38.255,
+    "confidence": 1
+  },
+  {
+    "word": "[BOOM]",
+    "startTime": 38.295,
+    "endTime": 38.413,
+    "confidence": 1
+  }
+]

@@ -50,46 +50,75 @@ function countRealWords(line: string[]): number {
   return line.filter(w => !isEmotionTag(w)).length
 }
 
-// Group all words with their timestamps - keep full sentences together
+// Helper to clean word for better matching
+function clean(word: string) {
+  return word.toLowerCase().replace(/[^a-z0-9]/g, '')
+}
+
+// Group all words with their timestamps.
+// The wordTimestamps array (from ElevenLabs) is the ground truth — it contains
+// both real words AND emotion tags in the correct spoken order, with precise timing.
+// We drive iteration from that array and assign lineIndex by consuming real lyric words.
 function getAllWords(
   lyrics: LyricsDocument,
   wordTimestamps: WordTimestamp[],
-): Array<{ word: string; timestamp: WordTimestamp; lineIndex: number; isBoom?: boolean }> {
-  const result: Array<{ word: string; timestamp: WordTimestamp; lineIndex: number; isBoom?: boolean }> = []
+): { 
+  displayWords: Array<{ word: string; timestamp: WordTimestamp; lineIndex: number }>;
+  punchlineTimes: number[];
+} {
+  const displayWords: Array<{ word: string; timestamp: WordTimestamp; lineIndex: number }> = []
+  const punchlineTimes: number[] = []
 
-  // Filter out emotion tags from timestamps to prevent index drift
-  const filteredTimestamps = wordTimestamps.filter(ts => !isEmotionTag(ts.word))
-
-  let tsIndex = 0
-  let lineIndex = 0
-  let pendingBoom = false
-
+  // Build a flat list of (non-tag) lyric words with their line index
+  // The lyrics words array strips tags already, so this is our line-tracking source
+  const flatLines: Array<{ lineIndex: number; wordsInLine: number }> = []
+  let li = 0
   for (const section of lyrics.sections) {
     for (const line of section.lines) {
-      for (let i = 0; i < line.words.length && tsIndex < filteredTimestamps.length; i++) {
-        const word = line.words[i]
-
-        if (word.toUpperCase() === '[BOOM]') {
-          pendingBoom = true
-          continue
-        }
-
-        // Skip other emotion tags in lyrics
-        if (!isEmotionTag(word)) {
-          result.push({
-            word: stripEmotionTags(word),
-            timestamp: filteredTimestamps[tsIndex++],
-            lineIndex,
-            isBoom: pendingBoom
-          })
-          pendingBoom = false
-        }
-      }
-      lineIndex++
+      flatLines.push({ lineIndex: li, wordsInLine: line.words.length })
+      li++
     }
   }
 
-  return result
+  // Track which line we're on based on how many real (non-tag) words we've consumed
+  let realWordCount = 0
+  let currentLineIdx = 0
+  let wordsConsumedInCurrentLine = 0
+
+  const advanceLine = () => {
+    while (currentLineIdx < flatLines.length && wordsConsumedInCurrentLine >= flatLines[currentLineIdx].wordsInLine) {
+      wordsConsumedInCurrentLine -= flatLines[currentLineIdx].wordsInLine
+      currentLineIdx++
+    }
+  }
+
+  for (const timestamp of wordTimestamps) {
+    const isBoom = timestamp.word.toUpperCase() === '[BOOM]'
+    if (isBoom) {
+      punchlineTimes.push(timestamp.startTime)
+      continue
+    }
+
+    if (isEmotionTag(timestamp.word)) {
+      // Emotion tag — skip display but don't advance the real-word counter
+      continue
+    }
+
+    // Real word — advance line tracking
+    advanceLine()
+    const lineIndex = currentLineIdx < flatLines.length ? flatLines[currentLineIdx].lineIndex : (flatLines.at(-1)?.lineIndex ?? 0)
+
+    displayWords.push({
+      word: timestamp.word,
+      timestamp,
+      lineIndex,
+    })
+
+    realWordCount++
+    wordsConsumedInCurrentLine++
+  }
+
+  return { displayWords, punchlineTimes }
 }
 
 // Get current line being spoken
@@ -97,7 +126,7 @@ function getCurrentLine(
   currentTime: number,
   allWords: Array<{ word: string; timestamp: WordTimestamp; lineIndex: number }>,
 ): { text: string; words: Array<{ word: string; timestamp: WordTimestamp }> } | null {
-  // Find which word is currently active using raw time (audio plays from frame 0)
+  // Find which word is currently active using raw time
   const activeWord = allWords.find(
     w => w.timestamp.startTime <= currentTime && currentTime < w.timestamp.endTime
   )
@@ -303,29 +332,13 @@ export function RapVideoComposition({
   const { fps } = useVideoConfig()
   const currentTime = frame / fps
 
-  const allWords = getAllWords(lyrics, wordTimestamps)
-  const currentLine = getCurrentLine(currentTime, allWords)
+  const { displayWords, punchlineTimes: boomTimes } = getAllWords(lyrics, wordTimestamps)
+  const currentLine = getCurrentLine(currentTime, displayWords)
 
-  // Identify and trigger punchlines
-  const boomTags = allWords.filter(w => {
-    // Find words that were preceded by a [BOOM] tag in the raw lyrics
-    // (We'll update getAllWords to include this info if needed, or just look for tags here)
-    return false; // Placeholder for now
-  })
+  // Combined punchline hits
+  const punchlineTimes: number[] = [...boomTimes]
 
-  // Dynamic punchline times: 
-  // 1. Any word associated with a [BOOM] tag
-  // 2. The first word of the last line of each section (as a fallback)
-  const punchlineTimes: number[] = []
-
-  // Add [BOOM] tag times (we'll implement the detection in getAllWords)
-  const boomWordTimes = allWords
-    .filter(w => (w as any).isBoom)
-    .map(w => w.timestamp.startTime)
-
-  punchlineTimes.push(...boomWordTimes)
-
-  // If no [BOOM] tags were found, use the last-line fallback
+  // Fallback: If absolutely no [BOOM] tags were provided by AI, use section ends
   if (punchlineTimes.length === 0) {
     let currentGlobalLineIndex = 0
     for (const section of lyrics.sections) {
@@ -333,7 +346,7 @@ export function RapVideoComposition({
       const lastLineGlobalIndex = currentGlobalLineIndex + lastLineRelativeIndex
       currentGlobalLineIndex += section.lines.length
 
-      const firstWordOfLastLine = allWords.find(w => w.lineIndex === lastLineGlobalIndex)
+      const firstWordOfLastLine = displayWords.find(w => w.lineIndex === lastLineGlobalIndex)
       if (firstWordOfLastLine) {
         punchlineTimes.push(firstWordOfLastLine.timestamp.startTime)
       }
@@ -362,12 +375,23 @@ export function RapVideoComposition({
       {/* Audio - vocals */}
       {audioSrc && <Audio src={audioSrc} />}
 
-      {/* Audio - background beat (looped at low volume so vocals stay clear) */}
-      {beatSrc && <Audio src={beatSrc} volume={0.15} loop />}
+      {/* Audio - background beat (lower volume when a punchline hits) */}
+      {(() => {
+        if (!beatSrc) return null;
+
+        // Calculate if we're currently in a "punchline zone" (0.5s after any punchline hit)
+        const isPunching = punchlineTimes.some(t => {
+          const punchFrame = Math.round(t * fps);
+          return frame >= punchFrame && frame < punchFrame + (fps * 0.5);
+        });
+
+        return <Audio src={beatSrc} volume={isPunching ? 0.05 : 0.15} loop />;
+      })()}
 
       {/* Punchline flash effect — white flash + scale on punchline hits */}
       {punchlineTimes.map((t, i) => {
-        const punchFrame = Math.round(t * fps)
+        // Shift flash slightly earlier too for visual impact
+        const punchFrame = Math.round((t - 0.05) * fps)
         const elapsed = frame - punchFrame
         if (elapsed < 0 || elapsed > fps * 0.4) return null
         const flashOpacity = Math.max(0, 0.5 - elapsed / (fps * 0.4))
@@ -380,16 +404,17 @@ export function RapVideoComposition({
               inset: 0,
               backgroundColor: `rgba(250,204,21,${flashOpacity})`,
               pointerEvents: 'none',
+              zIndex: 10,
               transform: `scale(${scaleVal})`,
             }}
           />
         )
       })}
 
-      {/* Audio - punchline boom: fires at the start of each section's last line */}
+      {/* Audio - punchline boom: fires SLIGHTLY EARLIER than the word for maximum impact */}
       {punchSrc && punchlineTimes.map((t, i) => (
-        <Sequence key={i} from={Math.round(t * fps)} durationInFrames={Math.round(fps * 2.0)}>
-          <Audio src={punchSrc} volume={5.0} />
+        <Sequence key={i} from={Math.round((t - 0.1) * fps)} durationInFrames={Math.round(fps * 2.0)}>
+          <Audio src={punchSrc} volume={10.0} />
         </Sequence>
       ))}
 
@@ -476,7 +501,7 @@ export function RapVideoComposition({
         <div>Frame: {frame} | Time: {currentTime.toFixed(3)}s | Offset: {AUDIO_OFFSET}s</div>
         {(() => {
           // Direct comparison - no offset
-          const activeWord = allWords.find(w =>
+          const activeWord = displayWords.find(w =>
             currentTime >= w.timestamp.startTime && currentTime < w.timestamp.endTime
           )
           const drift = activeWord ? (currentTime - activeWord.timestamp.startTime).toFixed(3) : 'n/a'
