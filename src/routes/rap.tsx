@@ -185,7 +185,7 @@ function RapGeneratorPage() {
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-16">
 
         {/* Header */}
-        {(status === 'idle' || status === 'error' ) && (
+        {(status === 'idle' || status === 'error') && (
           <div className="text-center mb-12">
             <p className="text-yellow-400/50 text-xs tracking-[0.3em] font-mono-custom mb-3">BARS.AI</p>
             <h1 className="font-display text-7xl md:text-9xl tracking-wider leading-none">
@@ -206,62 +206,62 @@ function RapGeneratorPage() {
 
           {/* Previewing (Client-Side Player) */}
           {status === 'previewing' && previewData && (
-             <div className="flex flex-col gap-8 w-full">
-                <div className="rounded-lg overflow-hidden border-4 border-yellow-400 shadow-2xl shadow-yellow-400/10">
-                   <Player
-                      component={RapVideoComposition}
-                      inputProps={{
-                        lyrics: previewData.lyrics,
-                        wordTimestamps: previewData.wordTimestamps,
-                        audioSrc: previewData.audioUrl,
-                        beatSrc: previewData.beatUrl,
-                        punchSrc: previewData.punchUrl,
-                        fps: 30,
-                      }}
-                      durationInFrames={30 * 45} // Approx 45s, should ideally be computed
-                      fps={30}
-                      compositionWidth={1080}
-                      compositionHeight={1080}
-                      style={{ width: '100%', aspectRatio: '1' }}
-                      controls
-                      autoPlay
-                   />
-                </div>
-                
-                <div className="flex flex-col sm:flex-row gap-4">
-                   <button
+            <div className="flex flex-col gap-8 w-full">
+              <div className="rounded-lg overflow-hidden border-4 border-yellow-400 shadow-2xl shadow-yellow-400/10">
+                <Player
+                  component={RapVideoComposition}
+                  inputProps={{
+                    lyrics: previewData.lyrics,
+                    wordTimestamps: previewData.wordTimestamps,
+                    audioSrc: previewData.audioUrl,
+                    beatSrc: previewData.beatUrl,
+                    punchSrc: previewData.punchUrl,
+                    fps: 30,
+                  }}
+                  durationInFrames={30 * 45} // Approx 45s, should ideally be computed
+                  fps={30}
+                  compositionWidth={1080}
+                  compositionHeight={1080}
+                  style={{ width: '100%', aspectRatio: '1' }}
+                  controls
+                  autoPlay
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* <button
                       onClick={handleStartRender}
                       className="cta-btn flex-1 py-4 text-xl rounded-sm flex items-center justify-center gap-2"
                    >
                      <Video size={20} />
                      FINALIZE & DOWNLOAD MP4
-                   </button>
-                   <button
-                      onClick={handleReset}
-                      className="secondary-btn px-6 py-4 rounded-sm flex items-center justify-center gap-2"
-                   >
-                     <RotateCcw size={18} />
-                     RETRY
-                   </button>
-                </div>
-                <p className="text-white/20 text-[10px] text-center font-mono-custom tracking-[0.2em]">
-                   PREVIEW VERSION · WATERMARK REMOVED ON DOWNLOAD
-                </p>
-             </div>
+                   </button> */}
+                <button
+                  onClick={handleReset}
+                  className="secondary-btn px-6 py-4 rounded-sm flex items-center justify-center gap-2"
+                >
+                  <RotateCcw size={18} />
+                  RETRY
+                </button>
+              </div>
+              <p className="text-white/20 text-[10px] text-center font-mono-custom tracking-[0.2em]">
+                PREVIEW VERSION · WATERMARK REMOVED ON DOWNLOAD
+              </p>
+            </div>
           )}
 
           {/* Done (Server-Side Rendered Video with Download) */}
           {status === 'done' && videoUrl && (
             <div className="flex flex-col gap-8 w-full">
               <div className="rounded-lg overflow-hidden border-4 border-white/20">
-                <video 
-                  src={videoUrl} 
-                  controls 
-                  autoPlay 
+                <video
+                  src={videoUrl}
+                  controls
+                  autoPlay
                   className="w-full aspect-square bg-zinc-900"
                 />
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
                   href={videoUrl}
@@ -315,12 +315,12 @@ function RapGeneratorPage() {
                 className="cta-btn w-full py-4 text-2xl rounded-sm flex items-center justify-center gap-2"
               >
                 {previewMutation.isPending ? (
-                   <span className="flex items-center gap-2">
-                      <Sparkles className="animate-spin" size={20} />
-                      COOKING...
-                   </span>
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="animate-spin" size={20} />
+                    COOKING...
+                  </span>
                 ) : (
-                   "GENERATE VERSE →"
+                  "GENERATE VERSE →"
                 )}
               </button>
 
@@ -353,13 +353,13 @@ function RapGeneratorPage() {
                   {status === 'generating' ? 'COOKING PREVIEW...' : 'RENDERING MP4...'}
                 </p>
                 <p className="text-white/30 text-xs font-mono-custom mt-4 tracking-widest uppercase">
-                   {status === 'generating' ? 'Writing bars & voicing them' : 'Exporting high-quality video file'}
+                  {status === 'generating' ? 'Give us just a minute while we get the preview' : 'Exporting high-quality video file'}
                 </p>
               </div>
               {status === 'rendering' && (
-                 <p className="text-white/20 text-[10px] font-mono-custom tracking-[0.3em] bg-white/5 px-4 py-2 rounded-full">
-                    ETA: ~30-45 SECONDS
-                 </p>
+                <p className="text-white/20 text-[10px] font-mono-custom tracking-[0.3em] bg-white/5 px-4 py-2 rounded-full">
+                  ETA: ~30-45 SECONDS
+                </p>
               )}
             </div>
           )}

@@ -104,6 +104,7 @@ class RenderService {
 
       const renderOutputPath = path.join(tempDir, `${jobId}.mp4`)
 
+      let lastProgress = -1
       await renderMedia({
         composition: finalComposition,
         serveUrl: bundleLocation,
@@ -111,6 +112,13 @@ class RenderService {
         outputLocation: renderOutputPath,
         inputProps: props,
         concurrency: 2,
+        onProgress: ({ progress }) => {
+          const percent = Math.round(progress * 100)
+          if (percent !== lastProgress && percent % 5 === 0) {
+            console.log(`  → Rendering: ${percent}%`)
+            lastProgress = percent
+          }
+        },
       })
 
       const mp4Buffer = fs.readFileSync(renderOutputPath)

@@ -517,7 +517,7 @@ export function RapVideoComposition({
           )
         })()}
       </div> */}
-      {currentLine && (
+      {/* {currentLine && (
         <>
           <div style={{ position: 'absolute', top: 150, left: 20, fontFamily: robotoMono, fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>
             Line: {currentLine.text.substring(0, 30)}...
@@ -528,7 +528,7 @@ export function RapVideoComposition({
             )?.word || 'none'}
           </div>
         </>
-      )}
+      )} */}
     </AbsoluteFill>
   )
 }

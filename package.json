@@ -6,7 +6,7 @@
     "#/*": "./src/*"
   },
   "scripts": {
-    "dev": "dotenv -e .env.local -- sh -c \"NODE_OPTIONS='--import ./instrument.server.mjs' vite dev --port 3000\"",
+    "dev": "dotenv -e .env.local -- sh -c \"NODE_OPTIONS='--import ./instrument.server.mjs' vite dev --port 3001\"",
     "build": "vite build ",
     "preview": "vite preview",
     "test": "vitest run",
@@ -30,13 +30,18 @@
     "@remotion/web-renderer": "4.0.450",
     "@remotion/lambda": "4.0.450",
     "@remotion/studio": "4.0.450",
+    "@remotion/studio-server": "4.0.450",
     "@remotion/studio-shared": "4.0.450",
     "@remotion/media-utils": "4.0.450",
     "@remotion/zod-types": "4.0.450",
     "@remotion/shapes": "4.0.450",
     "@remotion/skia": "4.0.450",
     "@remotion/gif": "4.0.450",
-    "@remotion/lottie": "4.0.450"
+    "@remotion/lottie": "4.0.450",
+    "@remotion/compositor-win32-x64-msvc": "4.0.450",
+    "@remotion/licensing": "4.0.450",
+    "@remotion/streaming": "4.0.450",
+    "@remotion/media-parser": "4.0.450"
   },
   "dependencies": {
     "@orpc/client": "^1.13.6",
@@ -51,7 +56,6 @@
     "@remotion/player": "4.0.450",
     "@remotion/renderer": "4.0.450",
     "@remotion/web-renderer": "4.0.450",
-    "remotion": "4.0.450",
     "@sentry/tanstackstart-react": "^10.42.0",
     "@t3-oss/env-core": "^0.13.10",
     "@tailwindcss/vite": "^4.1.18",
@@ -84,15 +88,18 @@
     "pg": "^8.16.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "remotion": "4.0.450",
     "resend": "^6.12.0",
     "streamdown": "^2.3.0",
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.1.18",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^14.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.5",
+    "@remotion/cli": "4.0.450",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/devtools-vite": "latest",
     "@testing-library/dom": "^10.4.1",
@@ -110,6 +117,24 @@
     "vitest": "^3.0.5"
   },
   "pnpm": {
+    "overrides": {
+      "remotion": "4.0.450",
+      "@remotion/bundler": "4.0.450",
+      "@remotion/google-fonts": "4.0.450",
+      "@remotion/media": "4.0.450",
+      "@remotion/player": "4.0.450",
+      "@remotion/renderer": "4.0.450",
+      "@remotion/web-renderer": "4.0.450",
+      "@remotion/studio-server": "4.0.450",
+      "@remotion/studio": "4.0.450",
+      "@remotion/studio-shared": "4.0.450",
+      "@remotion/media-utils": "4.0.450",
+      "@remotion/zod-types": "4.0.450",
+      "@remotion/compositor-win32-x64-msvc": "4.0.450",
+      "@remotion/licensing": "4.0.450",
+      "@remotion/streaming": "4.0.450",
+      "@remotion/media-parser": "4.0.450"
+    },
     "onlyBuiltDependencies": [
       "esbuild",
       "lightningcss"

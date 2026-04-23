@@ -36,12 +36,17 @@ export const rapGenerate = os
 
     try {
       // 1. Generate Lyrics
-      const lyrics = await getLyricsService().generateLyrics(input.topic)
+      // const lyrics = await getLyricsService().generateLyrics(input.topic)
+      const lyrics = testingLyrics
       if (!lyrics) throw new ORPCError('INTERNAL_SERVER_ERROR', { message: 'LYRICS_PARSE_ERROR' })
 
       // 2. Generate Audio (Voice)
-      const audioResult = await getAudioService().synthesize(lyrics.fullText)
-      const { audioBuffer, wordTimestamps } = audioResult
+      // const audioResult = await getAudioService().synthesize(lyrics.fullText)
+      // const { audioBuffer, wordTimestamps } = audioResult
+      const { audioBuffer, wordTimestamps } = {
+        audioBuffer: fs.readFileSync(`./public/videos/${'f78452f8-b51a-4e68-87e3-d63d6e645d09'}.mp3`),
+        wordTimestamps: testingAudioResult
+      }
       const beatBuffer = getBeat()
 
       // Record job in DB
@@ -85,12 +90,12 @@ export const rapPreview = os
     const userId = session?.user.id
 
     // Check limits if logged in
-    if (userId) {
-      const [stats] = await db.select({ value: count() }).from(rapJobs).where(eq(rapJobs.userId, userId))
-      if (stats.value >= 2) {
-        throw new ORPCError('FORBIDDEN', { message: 'You have reached your limit of 2 raps.' })
-      }
-    }
+    // if (userId) {
+    //   const [stats] = await db.select({ value: count() }).from(rapJobs).where(eq(rapJobs.userId, userId))
+    //   if (stats.value >= 2) {
+    //     throw new ORPCError('FORBIDDEN', { message: 'You have reached your limit of 2 raps.' })
+    //   }
+    // }
 
     const jobId = uuid()
 
