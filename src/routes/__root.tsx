@@ -26,6 +26,34 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       {
         title: 'BarsAI - Create rap bars for any topic',
       },
+      {
+        property: 'og:title',
+        content: 'BarsAI - Create rap bars for any topic',
+      },
+      {
+        property: 'og:description',
+        content: 'Drop a topic. Get a rap video. AI written bars, voiced by ElevenLabs, and rendered in cinematic style.',
+      },
+      {
+        property: 'og:image',
+        content: '/hero.png',
+      },
+      {
+        name: 'twitter:card',
+        content: 'summary_large_image',
+      },
+      {
+        name: 'twitter:title',
+        content: 'BarsAI - Create rap bars for any topic',
+      },
+      {
+        name: 'twitter:description',
+        content: 'Drop a topic. Get a rap video. AI written bars, voiced by ElevenLabs, and rendered in cinematic style.',
+      },
+      {
+        name: 'twitter:image',
+        content: '/hero.png',
+      },
     ],
     links: [
       {
